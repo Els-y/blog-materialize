@@ -1,0 +1,134 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
+    link(rel='stylesheet', href='/stylesheets/materialize.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    block css
+
+  body
+    .navbar-fixed.navbar
+      nav.deep-purple
+        .nav-wrapper
+          .container
+            .row
+              a.col.m1.brand-logo(href='/') Microblog
+              ul.col.offset-m2.hide-on-med-and-down
+                li
+                  a(href='/articles') Articles
+              if user
+                ul#dropdown-logined.dropdown-content
+                  li
+                    a.deep-purple-text(href='/users/setting') Settings
+                  li.divider
+                  li
+                    a.deep-purple-text(href='/logout') Sign out
+                ul.right.hide-on-med-and-down
+                  li
+                    a.dropdown-button(href='', data-activates='dropdown-logined') #{user.username}
+              else
+                ul.right.hide-on-med-and-down
+                  li
+                    a.button-collapse.show-on-large(href='#loginForm', data-activates='slide-login') Login
+                  li
+                    a.button-collapse.show-on-large(href='#registForm', data-activates='slide-regist') Regist
+
+    ul#slide-login.side-nav
+        .container
+          .row
+            h4.center-align Login
+          .row
+            form.login-form
+              .row
+                .input-field.col.s12
+                  input#login-username(type='text', name='username')
+                  label(for='login-username') Username
+              .row
+                .input-field.col.s12
+                  input#login-password(type='password', name='password')
+                  label(for='login-password') Password
+              .row
+                p.col
+                  input#login-remember_me(type='checkbox', name='remember_me')
+                  label(for='login-remember_me') Remember me
+                p.col
+                  a.blue-text(href='') Forget password?
+              .row
+                .col.s10.offset-s1
+                  button.btn.waves-effect.deep-purple(type='submit') submit
+
+    ul#slide-regist.side-nav
+      .container
+        .row
+          h4.center-align Regist
+        .row
+          form.regist-form
+            .row
+              .input-field.col.s12
+                input#regist-username(type='text', name='username')
+                label(for='regist-username') Username
+            .row
+              .input-field.col.s12
+                input#regist-email(type='email', name='email')
+                label(for='regist-email') Email
+            .row
+              .input-field.col.s12
+                input#regist-password(type='password', name='password')
+                label(for='regist-password') Password
+            .row
+              .input-field.col.s12
+                input#regist-confirm(type='password', name='confirm')
+                label(for='regist-confirm') Confirm Password
+            .row
+              .col.s10.offset-s1
+                button.btn.waves-effect.deep-purple(type='submit') submit
+
+
+    block content
+
+    .fixed-action-btn
+      a.btn-floating.btn-large.deep-purple.lighten-4.waves-effect
+        i.large.mdi-editor-mode-edit
+      ul
+        li
+          a.btn-floating.red.waves-effect.tooltipped.write-article(data-position='right', data-delay='50', data-tooltip='Write Article')
+            i.large.mdi-editor-insert-chart
+        li
+          a.btn-floating.yellow.darken-1.waves-effect.tooltipped.feedback(data-position='right', data-delay='50', data-tooltip='Feedback')
+            i.large.mdi-editor-format-quote
+        li
+          a.btn-floating.green.waves-effect.tooltipped(data-position='right', data-delay='50', data-tooltip='Github', href='https://github.com/Els-y')
+            i.large.mdi-editor-publish
+        li
+          a.btn-floating.blue.waves-effect.tooltipped.back-to-top(data-position='right', data-delay='50', data-tooltip='Back to Top')
+            i.large.mdi-editor-attach-file
+
+
+    footer.page-footer.deep-purple
+      .container
+        .row
+          .col.l6.s12
+            h5.white-text Footer Content
+            p.grey-text.text-lighten-4 You can use rows and columns here to organize your footer content.
+          .col.l4.offset-l2.s12
+            h5.white-text Links
+            ul
+              li
+                a.grey-text.text-lighten-3(href='#!') Link 1
+              li
+                a.grey-text.text-lighten-3(href='#!') Link 2
+              li
+                a.grey-text.text-lighten-3(href='#!') Link 3
+              li
+                a.grey-text.text-lighten-3(href='#!') Link 4
+      .footer-copyright
+        .container
+          | © 2016 Copyright Text
+          a.grey-text.text-lighten-4.right(href='#!') More Links
+
+    script(src='/javascripts/general/jquery.js')
+    script(src='/javascripts/general/materialize.min.js')
+    script(src='/javascripts/general/initComponents.js')
+    script(src='/javascripts/general/loginAndRegist.js')
+    block scripts

@@ -1,0 +1,3 @@
+Welcome to Microblog
+Click to confirm: a(href='#{confirmUrl}') #{confirmUrl}
+Thanks

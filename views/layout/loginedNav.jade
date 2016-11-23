@@ -1,0 +1,18 @@
+.navbar-fixed
+  nav.deep-purple
+    .nav-wrapper
+      .container
+        .row
+          a.col.m1.brand-logo(href='/') Microblog
+          ul.col.offset-m2.hide-on-med-and-down
+            li
+              a(href='/articles') Articles
+          ul#dropdown-logined.dropdown-content
+            li
+              a(href='#!') Settings
+            li.divider
+            li
+              a(href='#!') Sign out
+          ul.right.hide-on-med-and-down
+            li
+              a.dropdown-button(href='', data-activates='dropdown-logined') Username

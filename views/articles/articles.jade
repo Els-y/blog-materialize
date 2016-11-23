@@ -1,0 +1,35 @@
+extends ../layout/layout
+
+block css
+  link(rel='stylesheet', href='/stylesheets/articles.css')
+
+block content
+  .container.page-container
+    .row
+      .col.m8.s12
+        .collection.article-list.z-depth-1
+          each i in [1,2,3,4,5,6,7,8]
+            include article-list-single
+
+      .col.m4.hide-on-small-only
+        include article-categories
+        include newest-comments
+
+  .container
+    .divider
+    ul.pagination
+      li.disabled
+        a(href='#!') <
+      li.active.deep-purple.lighten-2
+        a(href='#!') 1
+      li.waves-effect
+        a(href='#!') 2
+      li.waves-effect
+        a(href='#!') 3
+      li.waves-effect
+        a(href='#!') 4
+      li.waves-effect
+        a(href='#!') 5
+      li.waves-effect
+        a(href='#!') >
+        
