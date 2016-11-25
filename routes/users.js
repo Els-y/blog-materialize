@@ -1,16 +1,19 @@
 var express = require('express');
 var router = express.Router();
+var csrf = require('csurf');
+var csrfProtection = csrf();
+
 var validator = require('../validator');
 var User = require('../models/user');
 
 /* GET users listing. */
-router.get('/settings', checkHasLogin);
-router.get('/settings', function(req, res, next) {
-  res.render('users/settings');
+router.get('/settings', csrfProtection, checkHasLogin);
+router.get('/settings', csrfProtection, function(req, res, next) {
+  res.render('users/settings', {csrfToken: req.csrfToken()});
 });
 
-router.post('/resetpassword', checkOperationIsResetPassword);
-router.post('/resetpassword', function(req, res, next) {
+router.post('/resetpassword', csrfProtection, checkOperationIsResetPassword);
+router.post('/resetpassword', csrfProtection, function(req, res, next) {
   var status = {success: false,
                 err: null
                };
@@ -37,8 +40,8 @@ router.post('/resetpassword', function(req, res, next) {
   }
 });
 
-router.post('/changepassword', checkHasLogin);
-router.post('/changepassword', function(req, res, next) {
+router.post('/changepassword', csrfProtection, checkHasLogin);
+router.post('/changepassword', csrfProtection, function(req, res, next) {
   var status = {success: false,
                 err: null
                };

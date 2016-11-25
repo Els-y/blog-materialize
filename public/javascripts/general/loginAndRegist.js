@@ -54,11 +54,13 @@
     var username = $('#slide-login #login-username').val();
     var password = $('#slide-login #login-password').val();
     var remember_me = $('#login-remember_me').prop('checked');
+    var _csrf = $('#slide-login input[name="_csrf"]').val();
 
     var postData = {
       username: username,
       password: password,
-      remember_me: remember_me
+      remember_me: remember_me,
+      _csrf: _csrf
     };
 
     if (!validator.invalidLoginForm(username, password)) {
@@ -81,12 +83,14 @@
     var email = $('#slide-regist #regist-email').val();
     var password = $('#slide-regist #regist-password').val();
     var confirm = $('#slide-regist #regist-confirm').val();
+    var _csrf = $('#slide-login input[name="_csrf"]').val();
 
     var postData = {
       username: username,
       email: email,
       password: password,
       confirm: confirm,
+      _csrf: _csrf
     };
 
     if (!validator.invalidRegistForm(username, email, password, confirm)) {
@@ -163,10 +167,12 @@
   function forgotFormSubmitHandler() {
     var username = $('.forgot-form #forgot-username').val();
     var email = $('.forgot-form #forgot-email').val();
+    var _csrf = $('#slide-login input[name="_csrf"]').val();
 
     var postData = {
       username: username,
       email: email,
+      _csrf: _csrf
     };
 
     if (!validator.invalidForgotForm(username, email)) {

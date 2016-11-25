@@ -26,10 +26,12 @@
   function resetFormSubmitHandler() {
     var password = $('.reset-form #reset-password').val();
     var confirm = $('.reset-form #reset-confirm').val();
+    var _csrf = $('.reset-form input[name="_csrf"]').val();
 
     var postData = {
       password: password,
       confirm: confirm,
+      _csrf: _csrf
     };
 
     if (!validator.invalidResetForm(password, confirm)) {
