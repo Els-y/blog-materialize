@@ -107,7 +107,7 @@
   function updateNavbar(username) {
     $(".navbar .right").remove();
     var html = '<ul id="dropdown-logined" class="dropdown-content">' +
-               '<li><a href="/users/setting" class="deep-purple-text">Settings</a></li>' +
+               '<li><a href="/users/settings" class="deep-purple-text">Settings</a></li>' +
                '<li class="divider"></li>' +
                '<li><a href="/logout" class="deep-purple-text">Sign out</a></li>' +
                '</ul>' +

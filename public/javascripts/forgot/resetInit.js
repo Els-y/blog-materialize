@@ -36,7 +36,6 @@
       $.post('/users/resetpassword', postData, function(data, status) {
         if (data.success) {
           Materialize.toast('Your password has been revised successfully', 4000);
-          // refresh();
           window.location.reload();
         } else {
           Materialize.toast(data.err, 1000);
@@ -45,10 +44,6 @@
     }
 
     return false;
-  }
-
-  function refresh() {
-    window.location.reload();
   }
 
   $(function() {

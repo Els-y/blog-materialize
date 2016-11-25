@@ -4,8 +4,9 @@ var validator = require('../validator');
 var User = require('../models/user');
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/settings', checkHasLogin);
+router.get('/settings', function(req, res, next) {
+  res.render('users/settings');
 });
 
 router.post('/resetpassword', checkOperationIsResetPassword);
@@ -34,7 +35,38 @@ router.post('/resetpassword', function(req, res, next) {
       });
     });
   }
+});
 
+router.post('/changepassword', checkHasLogin);
+router.post('/changepassword', function(req, res, next) {
+  var status = {success: false,
+                err: null
+               };
+
+  if (!validator.checkPassword(req.body.oldpassword) || !validator.checkPassword(req.body.newpassword) ||
+!validator.checkPassword(req.body.confirmnew)) {
+    status.err = 'Invalid password';
+    res.send(status);
+  } else if (!validator.checkSame(req.body.newpassword, req.body.confirmnew)) {
+    status.err = 'Passwords are not consistent';
+    res.send(status);
+  } else {
+    User.findOne({username: req.session.user.username}, function(err, user) {
+      if (user.comparePassword(req.body.oldpassword)) {
+        status.success = true;
+        user.encrypt = false;
+        user.password = req.body.newpassword;
+
+        user.save(function() {
+          req.session.user = user;
+          res.send(status);
+        });
+      } else {
+        status.err = 'Password error';
+        res.send(status);
+      }
+    });
+  }
 });
 
 // check operation == reset

@@ -55,7 +55,7 @@ router.post('/regist', function(req, res, next) {
     username: req.body.username,
     email: req.body.email,
     password: req.body.password,
-    avatar: 'images/avatar/default01.jpg',
+    avatar: '/images/avatar/default01.jpg',
     registDate: Date(),
     confirmDate: Date(),
     confirmed: false,
