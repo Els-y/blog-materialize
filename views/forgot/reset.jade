@@ -1,0 +1,24 @@
+extends ../layout/layout
+
+block content
+  .container
+    .row.valign-wrapper.page-container
+      .card.white.col.m4.offset-m4.s12.z-depth-2
+        .card-content.black-text
+          .row
+            h4.center-align Reset Password
+          .row
+            form.reset-form
+              .row
+                .input-field.col.m10.offset-m1.s12
+                  input#reset-password(type='password', name='password')
+                  label(for='reset-password') Password
+              .row
+                .input-field.col.m10.offset-m1.s12
+                  input#reset-confirm(type='password', name='confirm')
+                  label(for='reset-confirm') Confirm Password
+              .row
+                .col.m8.offset-m2.s10.offset-s1
+                  button.btn.waves-effect.deep-purple(type='submit') submit
+block scripts
+  script(src='/javascripts/forgot/resetInit.js')

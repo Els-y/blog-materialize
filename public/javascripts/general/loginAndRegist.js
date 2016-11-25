@@ -1,3 +1,4 @@
+// login and regist form
 (function() {
   var validator = {
     wrongMessage: {
@@ -131,5 +132,60 @@
   $(function() {
     $('#slide-login .btn').click(loginFormSubmitHandler);
     $('#slide-regist .btn').click(registFormSubmitHandler);
+  });
+})();
+
+// forgot-form
+(function() {
+  var validator = {
+    wrongMessage: {
+      'username': 'Invalid username',
+      'email': 'Invalid email'
+    },
+    checkUsername: function(username) {
+      return /^[a-zA-Z][0-9a-zA-Z_\-]{2,9}$/.test(username);
+    },
+    checkEmail: function(email) {
+      return /^\w+([-+.]\w+)*@(([0-9a-zA-Z_\-]+\.)+[a-zA-Z]{2,4})$/.test(email);
+    },
+    invalidForgotForm: function(username, email) {
+      if (!this.checkUsername(username)) {
+        Materialize.toast(this.wrongMessage.username, 1000);
+        return true;
+      } else if (!this.checkEmail(email)) {
+        Materialize.toast(this.wrongMessage.email, 1000);
+        return true;
+      }
+      return false;
+    }
+  };
+
+  function forgotFormSubmitHandler() {
+    var username = $('.forgot-form #forgot-username').val();
+    var email = $('.forgot-form #forgot-email').val();
+
+    var postData = {
+      username: username,
+      email: email,
+    };
+
+    if (!validator.invalidForgotForm(username, email)) {
+      $.post('/forgot', postData, function(data, status) {
+        if (data.success) {
+          $('#forgot-modal').modal('close');
+          $('.forgot-form #forgot-username').val('');
+          $('.forgot-form #forgot-email').val('');
+          Materialize.toast('Confirm email has been sent', 4000);
+        } else {
+          Materialize.toast(data.data.err, 1000);
+        }
+      });
+    }
+
+    return false;
+  }
+
+  $(function() {
+    $('.forgot-form .btn').click(forgotFormSubmitHandler);
   });
 })();

@@ -18,10 +18,27 @@ body {
   width: 100%;
 }
 
+/* forgotForm */
+#forgot-modal {
+  width: 350px;
+}
+#forgot-modal .btn {
+  width: 100%;
+}
+
+/* resetForm */
+.reset-form .btn {
+  width: 100%;
+}
+
 /* fixed-btn */
 .fixed-action-btn {
   bottom: 45px;
   right: 160px;
+}
+.github {
+  background: url('../images/icon/GitHub-Mark-32px.png') center no-repeat;
+  background-size: 42px;
 }
 @media only screen and (max-width : 992px) {
   .fixed-action-btn {

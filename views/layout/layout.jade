@@ -53,10 +53,29 @@ html
                   input#login-remember_me(type='checkbox', name='remember_me')
                   label(for='login-remember_me') Remember me
                 p.col
-                  a.blue-text(href='') Forget password?
+                  a.blue-text.modal-trigger(href='#forgot-modal') Forgot password?
               .row
                 .col.s10.offset-s1
                   button.btn.waves-effect.deep-purple(type='submit') submit
+    
+    // Forgot Modal Structure
+    #forgot-modal.modal
+      .modal-content
+        .row
+          h4.center-align Forgot Password
+          .divider
+        form.forgot-form
+          .row
+            .input-field.col.s12
+              input#forgot-username(type='text', name='username')
+              label(for='forgot-username') Username
+          .row
+            .input-field.col.s12
+              input#forgot-email(type='email', name='email')
+              label(for='forgot-email') Email
+          .row
+            .col.s10.offset-s1
+              button.btn.waves-effect.deep-purple(type='submit') submit
 
     ul#slide-regist.side-nav
       .container
@@ -88,21 +107,20 @@ html
     block content
 
     .fixed-action-btn
-      a.btn-floating.btn-large.deep-purple.lighten-4.waves-effect
-        i.large.mdi-editor-mode-edit
+      a.btn-floating.btn-large.deep-purple.lighten-2.waves-effect
+        i.large.material-icons add
       ul
         li
           a.btn-floating.red.waves-effect.tooltipped.write-article(data-position='right', data-delay='50', data-tooltip='Write Article')
-            i.large.mdi-editor-insert-chart
+            i.material-icons mode_edit
         li
-          a.btn-floating.yellow.darken-1.waves-effect.tooltipped.feedback(data-position='right', data-delay='50', data-tooltip='Feedback')
-            i.large.mdi-editor-format-quote
+          a.btn-floating.yellow.darken-2.waves-effect.tooltipped.feedback(data-position='right', data-delay='50', data-tooltip='Feedback')
+            i.material-icons message
         li
-          a.btn-floating.green.waves-effect.tooltipped(data-position='right', data-delay='50', data-tooltip='Github', href='https://github.com/Els-y')
-            i.large.mdi-editor-publish
+          a.btn-floating.waves-effect.grey.lighten-3.tooltipped.github(data-position='right', data-delay='50', data-tooltip='Github', href='https://github.com/Els-y')
         li
           a.btn-floating.blue.waves-effect.tooltipped.back-to-top(data-position='right', data-delay='50', data-tooltip='Back to Top')
-            i.large.mdi-editor-attach-file
+            i.material-icons publish
 
 
     footer.page-footer.deep-purple
@@ -127,8 +145,8 @@ html
           | © 2016 Copyright Text
           a.grey-text.text-lighten-4.right(href='#!') More Links
 
-    script(src='/javascripts/general/jquery.js')
-    script(src='/javascripts/general/materialize.min.js')
+    script(src='/javascripts/jquery.min.js')
+    script(src='/javascripts/materialize.min.js')
     script(src='/javascripts/general/initComponents.js')
     script(src='/javascripts/general/loginAndRegist.js')
     block scripts
