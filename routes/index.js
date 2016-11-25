@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('../validator');
-var util = require('util');
 var config = require('../config');
 
 // db Model
@@ -94,7 +93,7 @@ router.post('/regist', function(req, res, next) {
         var user = new User(userInfo);
         req.session.user = user;
         user.save();
-        user.sendConfirmMail(req.headers.host);
+        user.sendConfirmMail(req.headers.host, '/confirm/check/', user.username);
       }
       res.send(status);
     });
@@ -108,13 +107,7 @@ router.get('/logout', function(req, res, next) {
   res.redirect(req.headers.referer);
 });
 
-router.get('/test', function(req, res, next) {
-  User.findById('58354aa7ebfe3034585d3911', function(err, user) {
-    console.log('findbyid');
-    console.log(user);
-  });
-});
-
+// check if login
 function checkHasLogin(req, res, next) {
   if (!req.session.user) {
     return res.redirect('/');

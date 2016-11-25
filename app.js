@@ -13,8 +13,9 @@ var User = require('./models/user');
 // route
 var index = require('./routes/index');
 var users = require('./routes/users');
-var　confirm = require('./routes/confirm');
 var articles = require('./routes/articles');
+var confirm = require('./routes/confirm');
+var forgot = require('./routes/forgot');
 
 var app = express();
 
@@ -35,7 +36,7 @@ app.use(session({
 }));
 
 app.use(function(req, res, next) {
-  if (!req.session.user && req.cookies['rememberMe']) {
+  if (!req.session.user && req.cookies.rememberMe) {
     var remember = req.cookies.rememberMe;
     User.findById(remember.uid, function(err, user) {
       if (user && user.compareUsernameToken(remember.token)) {
@@ -55,8 +56,9 @@ app.use(function(req, res, next) {
 
 app.use('/', index);
 app.use('/users', users);
-app.use('/confirm', confirm);
 app.use('/articles', articles);
+app.use('/forgot', forgot);
+app.use('/confirm', confirm);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

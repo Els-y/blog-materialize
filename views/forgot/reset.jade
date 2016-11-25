@@ -1,0 +1,21 @@
+extends ../layout/layout
+
+block content
+  .container
+    .row.valign-wrapper.page-container
+      .card.white.col.m6.offset-m3.s12.z-depth-2
+        .card-content.black-text
+          form
+            .row
+              .input-fie.col.s12
+                input#reset-password(type='password', name='password')
+                label(for='reset-password')
+            .row
+              .input-fie.col.s12
+                input#reset-confirm(type='password', name='confirm')
+                label(for='reset-confirm')
+            .row
+              .col.s10.offset-s1
+                button.btn.waves-effect.deep-purple(type='submit') submit
+block scripts
+  //- script(src='/javascripts/confirm/resend.js')

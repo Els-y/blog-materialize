@@ -1,7 +1,7 @@
 module.exports = {
   secret: process.env.BLOG_SECRET,
   cookie: {
-    maxAge: 600000
+    maxAge: 1000 * 60 * 60 * 24
   },
   mailServer: {
     host: process.env.MAIL_HOST,
