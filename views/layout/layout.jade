@@ -40,6 +40,7 @@ html
             h4.center-align Login
           .row
             form.login-form
+              input(type='hidden', name='_csrf', value='#{csrfToken}')
               .row
                 .input-field.col.s12
                   input#login-username(type='text', name='username')

@@ -36,14 +36,14 @@
     var oldpassword = $('.change-form #change-oldpassword').val();
     var newpassword = $('.change-form #change-newpassword').val();
     var confirmnew = $('.change-form #change-confirmnew').val();
+    var _csrf = $('.change-form input[name="_csrf"]').val();
 
     var postData = {
       oldpassword: oldpassword,
       newpassword: newpassword,
-      confirmnew: confirmnew
+      confirmnew: confirmnew,
+      _csrf: _csrf
     };
-
-    console.log(postData);
 
     if (!validator.invalidChangeForm(oldpassword, newpassword, confirmnew)) {
       $.post('/users/changepassword', postData, function(data, status) {

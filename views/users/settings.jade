@@ -72,6 +72,7 @@ block content
           .card.white.col.m6.offset-m3.s12.z-depth-2
             .card-content.black-text
               form.change-form
+                input(type='hidden', name='_csrf', value='#{csrfToken}')
                 .row
                   .input-field.col.m10.offset-m1.s12
                     input#change-oldpassword(type='password', name='password')

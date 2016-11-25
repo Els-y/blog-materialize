@@ -2,13 +2,15 @@ var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
 var crypto = require('crypto');
+var csrf = require('csurf');
+var csrfProtection = csrf();
 
 var config = require('../config');
 var validator = require('../validator');
 var User = require('../models/user');
 
 // forgot password
-router.post('/', function(req, res, next) {
+router.post('/', csrfProtection, function(req, res, next) {
   var status = {success: false,
                 data: {username: req.body.username,
                        err: null,
@@ -59,9 +61,9 @@ router.get('/check/:confirmUrl', function(req, res, next) {
   }
 });
 
-router.get('/reset', checkOperationIsResetPassword);
-router.get('/reset', function(req, res, next) {
-  res.render('forgot/reset');
+router.get('/reset', csrfProtection, checkOperationIsResetPassword);
+router.get('/reset', csrfProtection, function(req, res, next) {
+  res.render('forgot/reset', {csrfToken: req.csrfToken()});
 });
 
 function checkIfForgotConfirmUrl(confirmUrl, token) {
