@@ -26,6 +26,11 @@ body {
   width: 100%;
 }
 
+/* resetForm */
+.reset-form .btn {
+  width: 100%;
+}
+
 /* fixed-btn */
 .fixed-action-btn {
   bottom: 45px;

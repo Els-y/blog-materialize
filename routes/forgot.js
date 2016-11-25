@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var bcrypt = require('bcrypt');
+var crypto = require('crypto');
 
 var config = require('../config');
 var validator = require('../validator');
@@ -26,9 +27,10 @@ router.post('/', function(req, res, next) {
     if (err) {
       status.data.err = 'Datebase error';
     } else if (user && user.email === req.body.email) {
-      user.sendConfirmMail(req.headers.host, '/forgot/check/', config.secret + 'forgotPassword');
+      req.session.token = crypto.randomBytes(8).toString('hex');
+      user.sendConfirmMail(req.headers.host, '/forgot/check/', config.secret + 'forgotPassword' + req.session.token);
       status.success = true;
-      res.cookie('forgotPassword', {uid: user._id, token: user.getUsernameToken()}, {maxAge: 1000 * 60 * 1});
+      res.cookie('forgotPassword', {uid: user._id, token: user.getUsernameToken(req.session.token)}, {maxAge: 1000 * 60 * 1});
     } else {
       status.data.err = 'Username or email wrong';
     }
@@ -37,17 +39,17 @@ router.post('/', function(req, res, next) {
 });
 
 router.get('/check/:confirmUrl', function(req, res, next) {
-  if (!checkIfForgotConfirmUrl(req.params.confirmUrl))
+  if (!checkIfForgotConfirmUrl(req.params.confirmUrl, req.session.token))
     return res.render('forgot/invalid');
 
-  console.log('valid forgot confirm url');
   if (req.cookies.forgotPassword) {
     var forgot = req.cookies.forgotPassword;
     User.findById(forgot.uid, function(err, user) {
       if (user && user.compareUsernameToken(forgot.token)) {
         if (user.confirmOverdue()) return res.render('forgot/invalid');
         req.session.user = user;
-        res.render('forgot/reset');
+        req.session.operation = 'reset-password';
+        res.redirect('/forgot/reset');
       } else {
         res.redirect('/invalid');
       }
@@ -57,8 +59,22 @@ router.get('/check/:confirmUrl', function(req, res, next) {
   }
 });
 
+router.get('/reset', checkOperationIsResetPassword);
+router.get('/reset', function(req, res, next) {
+  res.render('forgot/reset');
+});
+
 function checkIfForgotConfirmUrl(confirmUrl, token) {
-  return bcrypt.compareSync(config.secret + 'forgotPassword', confirmUrl);
+  return bcrypt.compareSync(config.secret + 'forgotPassword' + token, confirmUrl);
+}
+
+// check operation == reset
+function checkOperationIsResetPassword(req, res, next) {
+  if (req.session.operation && req.session.operation === 'reset-password') {
+    next();
+  } else {
+    res.redirect('/');
+  }
 }
 
 module.exports = router;

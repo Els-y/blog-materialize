@@ -173,6 +173,8 @@
       $.post('/forgot', postData, function(data, status) {
         if (data.success) {
           $('#forgot-modal').modal('close');
+          $('.forgot-form #forgot-username').val('');
+          $('.forgot-form #forgot-email').val('');
           Materialize.toast('Confirm email has been sent', 4000);
         } else {
           Materialize.toast(data.data.err, 1000);
