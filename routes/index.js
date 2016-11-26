@@ -14,7 +14,7 @@ router.get('/', csrfProtection, function(req, res, next) {
   res.render('index', {csrfToken: req.csrfToken()});
 });
 
-router.post('/login', csrfProtection, checkNotLogin);
+router.post('/login', checkNotLogin);
 router.post('/login', csrfProtection, function(req, res, next) {
   var status = {success: false,
                 data: {username: req.body.username,
@@ -46,7 +46,7 @@ router.post('/login', csrfProtection, function(req, res, next) {
   });
 });
 
-router.post('/regist', csrfProtection, checkNotLogin);
+router.post('/regist', checkNotLogin);
 router.post('/regist', csrfProtection, function(req, res, next) {
   var status = {success: false,
                 data: {username: req.body.username,
