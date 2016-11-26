@@ -7,12 +7,11 @@ var validator = require('../validator');
 var User = require('../models/user');
 
 /* GET users listing. */
-router.get('/settings', csrfProtection, checkHasLogin);
+router.get('/settings', checkHasLogin);
 router.get('/settings', csrfProtection, function(req, res, next) {
   res.render('users/settings', {csrfToken: req.csrfToken()});
 });
 
-router.post('/resetpassword', csrfProtection, checkOperationIsResetPassword);
 router.post('/resetpassword', csrfProtection, function(req, res, next) {
   var status = {success: false,
                 err: null
@@ -26,21 +25,18 @@ router.post('/resetpassword', csrfProtection, function(req, res, next) {
     res.send(status);
   } else {
     status.success = true;
-    req.session.operation = null;
-    // req.session.user = null;
-    User.findOne({username: req.session.user.username}, function(err, user) {
+    User.findOne({username: req.session.forgot_username}, function(err, user) {
       user.encrypt = false;
       user.password = req.body.password;
 
       user.save(function() {
-        req.session.user = null;
         res.send(status);
       });
     });
   }
 });
 
-router.post('/changepassword', csrfProtection, checkHasLogin);
+router.post('/changepassword', checkHasLogin);
 router.post('/changepassword', csrfProtection, function(req, res, next) {
   var status = {success: false,
                 err: null
@@ -71,15 +67,6 @@ router.post('/changepassword', csrfProtection, function(req, res, next) {
     });
   }
 });
-
-// check operation == reset
-function checkOperationIsResetPassword(req, res, next) {
-  if (req.session.operation && req.session.operation === 'reset-password') {
-    next();
-  } else {
-    res.redirect('/');
-  }
-}
 
 // check if login
 function checkHasLogin(req, res, next) {
