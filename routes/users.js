@@ -13,9 +13,10 @@ router.get('/settings', csrfProtection, function(req, res, next) {
 });
 
 router.post('/resetpassword', csrfProtection, function(req, res, next) {
-  var status = {success: false,
-                err: null
-               };
+  var status = {
+    success: false,
+    err: null
+  };
 
   if (!validator.checkPassword(req.body.password) || !validator.checkPassword(req.body.confirm)) {
     status.err = 'Invalid password';
@@ -38,9 +39,10 @@ router.post('/resetpassword', csrfProtection, function(req, res, next) {
 
 router.post('/changepassword', checkHasLogin);
 router.post('/changepassword', csrfProtection, function(req, res, next) {
-  var status = {success: false,
-                err: null
-               };
+  var status = {
+    success: false,
+    err: null
+  };
 
   if (!validator.checkPassword(req.body.oldpassword) || !validator.checkPassword(req.body.newpassword) ||
 !validator.checkPassword(req.body.confirmnew)) {

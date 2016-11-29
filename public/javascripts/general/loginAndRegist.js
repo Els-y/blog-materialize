@@ -66,9 +66,11 @@
     if (!validator.invalidLoginForm(username, password)) {
       $.post('/login', postData, function(data, status) {
         if (data.success) {
+          updateNavbar(data.data.username);
           $('.button-collapse').sideNav('hide');
-          Materialize.toast('Welcome again', 4000);
-          updateNavbar(data.data.username, data.data.navbarHtml);
+          Materialize.toast('Welcome again', 3000);
+          if (!data.data.ifconfirmed)
+            Materialize.toast('Please confirm your account', 3000);
         } else {
           Materialize.toast(data.data.err, 1000);
         }
@@ -97,7 +99,7 @@
       $.post('/regist', postData, function(data, status) {
         if (data.success) {
           $('.button-collapse').sideNav('hide');
-          Materialize.toast('Please confirm your account', 4000);
+          Materialize.toast('Please confirm your account', 3000);
           updateNavbar(data.data.username);
         } else {
           Materialize.toast(data.data.err, 1000);
@@ -181,7 +183,7 @@
           $('#forgot-modal').modal('close');
           $('.forgot-form #forgot-username').val('');
           $('.forgot-form #forgot-email').val('');
-          Materialize.toast('Confirm email has been sent', 4000);
+          Materialize.toast('Confirm email has been sent', 3000);
         } else {
           Materialize.toast(data.data.err, 1000);
         }

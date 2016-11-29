@@ -28,32 +28,53 @@ userScheMa.pre('save', function(next) {
   next();
 });
 
-userScheMa.methods.comparePassword = function(pwd) {
-  return bcrypt.compareSync(pwd, this.password);
+// statics
+userScheMa.statics.encodeInfo = function(info) {
+  var salt = bcrypt.genSaltSync(10);
+  return encodeURIComponent(bcrypt.hashSync(info, salt));
 };
 
-userScheMa.methods.sendConfirmMail = function(host, route, info) {
-  var text, html;
-  var that = this;
+userScheMa.statics.getCompleteUrl = function(host, route, token) {
+  return config.protocol + '://' + host + route + token;
+};
 
-  this.confirmDate = Date();
-  this.save(function() {
-    var confirmUrl = that.getConfirmUrl(host, route, info);
-    fs.readFile('./public/mail/confirmMail.txt', function(err, txtData) {
-      text = txtData.toString().replace(/#\{confirmUrl\}/g, confirmUrl);
-      fs.readFile('./public/mail/confirmMail.jade', function(err, jadeData) {
-        var cp = jade.compile(jadeData.toString());
-        html = cp({confirmUrl: confirmUrl});
-        mailServer.sendMail(that.email, '[Microblog] Confirm information', text, html);
-      });
+userScheMa.statics.sendConfirmMail = function(email, confirmUrl) {
+  var text, html;
+
+  fs.readFile('./public/mail/confirmMail.txt', function(err, txtData) {
+    text = txtData.toString().replace(/#\{confirmUrl\}/g, confirmUrl);
+    fs.readFile('./public/mail/confirmMail.jade', function(err, jadeData) {
+      var cp = jade.compile(jadeData.toString());
+      html = cp({confirmUrl: confirmUrl});
+      mailServer.sendMail(email, '[Microblog] Confirm information', text, html);
     });
   });
 };
 
-userScheMa.methods.getConfirmUrl = function(host, route, info) {
-  var salt = bcrypt.genSaltSync(10);
-  // return config.protocol + '://' + host + route + encodeURIComponent(bcrypt.hashSync(this.username　+ this.confirmDate, salt));
-  return config.protocol + '://' + host + route + encodeURIComponent(bcrypt.hashSync(info, salt));
+userScheMa.statics.sendForgotConfirmMail = function(email, host, token) {
+  var confirmUrl = userScheMa.statics.getCompleteUrl(host, '/forgot/check/', userScheMa.statics.encodeInfo(config.secret + 'forgotPassword' + token));
+
+  userScheMa.statics.sendConfirmMail(email, confirmUrl);
+};
+
+userScheMa.statics.checkIfForgotConfirmUrl = function(confirmUrl, token) {
+  return bcrypt.compareSync(config.secret + 'forgotPassword' + token, confirmUrl);
+};
+
+// methods
+userScheMa.methods.comparePassword = function(pwd) {
+  return bcrypt.compareSync(pwd, this.password);
+};
+
+userScheMa.methods.sendRegistConfirmMail = function(host) {
+  var that = this;
+  this.confirmDate = Date();
+
+  var confirmUrl = userScheMa.statics.getCompleteUrl(host, '/confirm/check/', userScheMa.statics.encodeInfo(this.username + this.confirmDate));
+
+  this.save(function() {
+    userScheMa.statics.sendConfirmMail(that.email, confirmUrl);
+  });
 };
 
 userScheMa.methods.confirmOverdue = function() {
@@ -66,14 +87,12 @@ userScheMa.methods.confirmOverdue = function() {
 };
 
 userScheMa.methods.confirmAccount = function(confirmHash) {
-  if (this.confirmOverdue()) {
-    return 1;  // expire
-  } else if (!bcrypt.compareSync(this.username, confirmHash)) {
-    return 2;  // wrong hash
+  if (this.confirmOverdue() || !bcrypt.compareSync(this.username + this.confirmDate, confirmHash)) {
+    return false;
   } else {
     this.confirmed = true;
     this.save();
-    return 0;  // correct
+    return true;
   }
 };
 
