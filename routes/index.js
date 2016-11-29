@@ -16,11 +16,14 @@ router.get('/', csrfProtection, function(req, res, next) {
 
 router.post('/login', checkNotLogin);
 router.post('/login', csrfProtection, function(req, res, next) {
-  var status = {success: false,
-                data: {username: req.body.username,
-                       err: null,
-                      }
-               };
+  var status = {
+    success: false,
+    data: {
+      username: req.body.username,
+      ifconfirmed: true,
+      err: null,
+    }
+   };
 
   if (!validator.checkUsername(req.body.username)) {
     status.data.err = 'Invalid username';
@@ -36,6 +39,7 @@ router.post('/login', csrfProtection, function(req, res, next) {
           res.cookie('rememberMe', {uid: user._id, token: user.getUsernameToken(), keep_login: true}, config.cookie);
         req.session.user = user;
         status.success = true;
+        if (!user.confirmed) status.data.ifconfirmed = false;
       } else {
         status.data.err = 'Password wrong';
       }
@@ -48,11 +52,13 @@ router.post('/login', csrfProtection, function(req, res, next) {
 
 router.post('/regist', checkNotLogin);
 router.post('/regist', csrfProtection, function(req, res, next) {
-  var status = {success: false,
-                data: {username: req.body.username,
-                       err: null,
-                      }
-               };
+  var status = {
+    success: false,
+    data: {
+      username: req.body.username,
+      err: null,
+    }
+  };
 
   var userInfo = {
     username: req.body.username,
@@ -96,7 +102,7 @@ router.post('/regist', csrfProtection, function(req, res, next) {
         var user = new User(userInfo);
         req.session.user = user;
         user.save();
-        user.sendConfirmMail(req.headers.host, '/confirm/check/', user.username);
+        user.sendRegistConfirmMail(req.headers.host);
       }
       res.send(status);
     });

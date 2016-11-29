@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var csrf = require('csurf');
+
 var User = require('../models/user');
+var csrfProtection = csrf();
 
 router.get('/check/:confirmUrl', checkHasLogin);
 router.get('/check/:confirmUrl', function(req, res, next) {
@@ -11,10 +14,7 @@ router.get('/check/:confirmUrl', function(req, res, next) {
       if (err) {
         console.log(err);
       } else {
-        var status = user.confirmAccount(req.params.confirmUrl);
-        if (status === 1) {
-          res.redirect('/confirm/expire');
-        } else if (status === 2) {
+        if (!user.confirmAccount(req.params.confirmUrl)) {
           res.redirect('/confirm/invalid');
         } else {
           req.session.user = user;
@@ -30,20 +30,18 @@ router.get('/check/:confirmUrl', function(req, res, next) {
   }
 });
 
-router.get('/expire', function(req, res, next) {
-  res.render('confirm/expire');
-});
-
-router.get('/invalid', function(req, res, next) {
-  res.render('confirm/invalid');
+router.get('/invalid', csrfProtection, function(req, res, next) {
+  res.render('confirm/invalid', {csrfToken: req.csrfToken()});
 });
 
 router.get('/resend', function(req, res, next) {
-  var status = {success: false,
-                data: {username: req.body.username,
-                       err: null,
-                      }
-               };
+  var status = {
+    success: false,
+    data: {
+      username: req.body.username,
+      err: null,
+    }
+   };
 
   if (!req.session.user) {
     status.data.err = 'Please login first';
@@ -54,7 +52,7 @@ router.get('/resend', function(req, res, next) {
     if (err) {
       status.data.err = 'Database error';
     } else {
-      user.sendConfirmMail(req.headers.host);
+      user.sendRegistConfirmMail(req.headers.host);
       status.success = true;
     }
     res.send(status);
