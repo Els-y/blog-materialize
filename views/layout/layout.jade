@@ -14,7 +14,7 @@ html
           .container
             .row
               a.col.m1.brand-logo(href='/') Microblog
-              ul.col.offset-m2.hide-on-med-and-down
+              ul.col.offset-m2.hide-on-small-only
                 li
                   a(href='/articles') Articles
               if user
@@ -24,11 +24,11 @@ html
                   li.divider
                   li
                     a.deep-purple-text(href='/logout') Sign out
-                ul.right.hide-on-med-and-down
+                ul.right.hide-on-small-only
                   li
                     a.dropdown-button(href='', data-activates='dropdown-logined') #{user.username}
               else
-                ul.right.hide-on-med-and-down
+                ul.right.hide-on-small-only
                   li
                     a.button-collapse.show-on-large(href='#loginForm', data-activates='slide-login') Login
                   li

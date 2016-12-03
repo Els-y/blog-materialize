@@ -1,6 +1,6 @@
 var nodemailer = require('nodemailer');
 var fs = require('jade');
-var config = require('../config');
+var config = require('../modules/config');
 
 var transporter = nodemailer.createTransport(config.mailServer);
 

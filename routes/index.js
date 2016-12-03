@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var csrf = require('csurf');
-var validator = require('../validator');
-var config = require('../config');
+var validator = require('../modules/validator');
+var config = require('../modules/config');
+var Promise = require('bluebird');
+var userPromise = require('../modules/promise/userPromise');
 
 var csrfProtection = csrf();
 
@@ -30,22 +32,19 @@ router.post('/login', csrfProtection, function(req, res, next) {
     return res.send(status);
   }
 
-  User.findOne({username: req.body.username}, function(err, user) {
-    if (err) {
-      status.data.err = 'Datebase error';
-    } else if (user) {
-      if (user.comparePassword(req.body.password)) {
-        if (req.body.remember_me === 'true')
-          res.cookie('rememberMe', {uid: user._id, token: user.getUsernameToken(), keep_login: true}, config.cookie);
-        req.session.user = user;
-        status.success = true;
-        if (!user.confirmed) status.data.ifconfirmed = false;
-      } else {
-        status.data.err = 'Password wrong';
-      }
+  userPromise.findUserByNamePromise(req.body.username).then(function(user) {
+    if (user.comparePassword(req.body.password)) {
+      if (req.body.remember_me === 'true')
+        res.cookie('rememberMe', {uid: user._id, token: user.getUsernameToken(), keep_login: true}, config.cookie);
+      req.session.user = user;
+      status.success = true;
+      if (!user.confirmed) status.data.ifconfirmed = false;
     } else {
-      status.data.err = 'User does not exist';
+      status.data.err = 'Password wrong';
     }
+  }).catch(function(reason) {
+    status.data.err = reason;
+  }).finally(function() {
     res.send(status);
   });
 });
@@ -83,29 +82,16 @@ router.post('/regist', csrfProtection, function(req, res, next) {
     return res.send(status);
   }
 
-  User.findOne({username: req.body.username}, function(err, userByName) {
-    if (err) {
-      status.data.err = 'Database error';
-      return res.send(status);
-    } else if (userByName) {
-      status.data.err = 'Username already exists';
-      return res.send(status);
-    }
-
-    User.findOne({email: req.body.email}, function(err, userByEmail) {
-      if (err) {
-        status.data.err = 'Database error';
-      } else if (userByEmail) {
-        status.data.err = 'Email already exists';
-      } else {
-        status.success = true;
-        var user = new User(userInfo);
-        req.session.user = user;
-        user.save();
-        user.sendRegistConfirmMail(req.headers.host);
-      }
-      res.send(status);
-    });
+  userPromise.findUserNotExistByNameAndEmail(req.body.username, req.body.email).then(function() {
+    var user = new User(userInfo);
+    status.success = true;
+    req.session.user = user;
+    user.save();
+    user.sendRegistConfirmMail(req.headers.host);
+  }).catch(function(reason) {
+    status.data.err = reason;
+  }).finally(function() {
+    res.send(status);
   });
 });
 
