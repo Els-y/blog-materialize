@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 
 // plugins
 var session = require('express-session');
-var config = require('./config');
+var config = require('./modules/config');
 var User = require('./models/user');
 
 // route

@@ -1,9 +1,12 @@
+var Promise = require('bluebird');
+var fs = Promise.promisifyAll(require('fs'));
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
-var fs = require('fs');
 var jade = require('jade');
 var mailServer = require('./mailServer');
-var config = require('../config');
+var config = require('../modules/config');
+
+mongoose.Promise = require('bluebird');
 
 var Schema = mongoose.Schema;
 var userScheMa = new Schema({
@@ -41,13 +44,15 @@ userScheMa.statics.getCompleteUrl = function(host, route, token) {
 userScheMa.statics.sendConfirmMail = function(email, confirmUrl) {
   var text, html;
 
-  fs.readFile('./public/mail/confirmMail.txt', function(err, txtData) {
-    text = txtData.toString().replace(/#\{confirmUrl\}/g, confirmUrl);
-    fs.readFile('./public/mail/confirmMail.jade', function(err, jadeData) {
-      var cp = jade.compile(jadeData.toString());
-      html = cp({confirmUrl: confirmUrl});
-      mailServer.sendMail(email, '[Microblog] Confirm information', text, html);
-    });
+  fs.readFileAsync('./public/mail/confirmMail.txt').then(function(txtData) {
+    text = txtData;
+    return fs.readFileAsync('./public/mail/confirmMail.jade');
+  }).then(function(jadeData) {
+    var cp = jade.compile(jadeData.toString());
+    html = cp({confirmUrl: confirmUrl});
+    mailServer.sendMail(email, '[Microblog] Confirm information', text, html);
+  }).catch(function(reason) {
+    console.log(reason);
   });
 };
 
@@ -72,8 +77,10 @@ userScheMa.methods.sendRegistConfirmMail = function(host) {
 
   var confirmUrl = userScheMa.statics.getCompleteUrl(host, '/confirm/check/', userScheMa.statics.encodeInfo(this.username + this.confirmDate));
 
-  this.save(function() {
+  this.save().then(function() {
     userScheMa.statics.sendConfirmMail(that.email, confirmUrl);
+  }).catch(function(reason) {
+    console.log(reason);
   });
 };
 
