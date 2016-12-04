@@ -120,7 +120,7 @@ router.post('/edit/addnew', csrfProtection, function(req, res, next) {
 
 router.get('/categories/:tag', csrfProtection, function(req, res, next) {
   var queryAll = Article.find().exec();
-  var queryCategories = Article.find({'categories': {$in: [req.params.tag]}}).exec();
+  var queryCategories = Article.find({'categories': {$in: [req.params.tag]}}).sort({'updateDate': 'desc'}).exec();
 
   Promise.all([queryCategories, queryAll]).spread(function(tagArticles, allArticles) {
     tagArticles.forEach(function(doc) {
