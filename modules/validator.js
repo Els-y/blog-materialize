@@ -11,6 +11,6 @@ var validator = {
   checkEmail: function(email) {
     return /^\w+([-+.]\w+)*@(([0-9a-zA-Z_\-]+\.)+[a-zA-Z]{2,4})$/.test(email);
   }
-}
+};
 
 module.exports = validator;

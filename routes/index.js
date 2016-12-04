@@ -5,6 +5,7 @@ var validator = require('../modules/validator');
 var config = require('../modules/config');
 var Promise = require('bluebird');
 var userPromise = require('../modules/promise/userPromise');
+var authority = require('../modules/authority');
 
 var csrfProtection = csrf();
 
@@ -16,13 +17,14 @@ router.get('/', csrfProtection, function(req, res, next) {
   res.render('index', {csrfToken: req.csrfToken()});
 });
 
-router.post('/login', checkNotLogin);
+router.post('/login', authority.checkNotLogin);
 router.post('/login', csrfProtection, function(req, res, next) {
   var status = {
     success: false,
     data: {
       username: req.body.username,
       ifconfirmed: true,
+      role: 0,
       err: null,
     }
    };
@@ -38,6 +40,7 @@ router.post('/login', csrfProtection, function(req, res, next) {
         res.cookie('rememberMe', {uid: user._id, token: user.getUsernameToken(), keep_login: true}, config.cookie);
       req.session.user = user;
       status.success = true;
+      status.data.role = user.role;
       if (!user.confirmed) status.data.ifconfirmed = false;
     } else {
       status.data.err = 'Password wrong';
@@ -49,7 +52,7 @@ router.post('/login', csrfProtection, function(req, res, next) {
   });
 });
 
-router.post('/regist', checkNotLogin);
+router.post('/regist', authority.checkNotLogin);
 router.post('/regist', csrfProtection, function(req, res, next) {
   var status = {
     success: false,
@@ -95,28 +98,11 @@ router.post('/regist', csrfProtection, function(req, res, next) {
   });
 });
 
-router.get('/logout', checkHasLogin);
+router.get('/logout', authority.checkHasLogin);
 router.get('/logout', function(req, res, next) {
   req.session.user = null;
   res.clearCookie('rememberMe');
   res.redirect(req.headers.referer);
 });
-
-// check if login
-function checkHasLogin(req, res, next) {
-  if (!req.session.user) {
-    return res.redirect('/');
-  } else {
-    next();
-  }
-}
-
-function checkNotLogin(req, res, next) {
-  if (req.session.user) {
-    return res.redirect('/');
-  } else {
-    next();
-  }
-}
 
 module.exports = router;

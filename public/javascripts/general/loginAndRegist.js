@@ -64,15 +64,19 @@
     };
 
     if (!validator.invalidLoginForm(username, password)) {
-      $.post('/login', postData, function(data, status) {
-        if (data.success) {
-          updateNavbar(data.data.username);
+      $.post('/login', postData, function(response, status) {
+        if (response.success) {
+          updateNavbar(response.data.username);
           $('.button-collapse').sideNav('hide');
+
+          if (response.data.role !== 0)
+            updateFixedActionBtn();
+
           Materialize.toast('Welcome again', 3000);
-          if (!data.data.ifconfirmed)
+          if (!response.data.ifconfirmed)
             Materialize.toast('Please confirm your account', 3000);
         } else {
-          Materialize.toast(data.data.err, 1000);
+          Materialize.toast(response.data.err, 1000);
         }
       });
     }
@@ -96,18 +100,39 @@
     };
 
     if (!validator.invalidRegistForm(username, email, password, confirm)) {
-      $.post('/regist', postData, function(data, status) {
-        if (data.success) {
+      $.post('/regist', postData, function(response, status) {
+        if (response.success) {
           $('.button-collapse').sideNav('hide');
           Materialize.toast('Please confirm your account', 3000);
-          updateNavbar(data.data.username);
+          updateNavbar(response.data.username);
+          updateFixedActionBtn();
         } else {
-          Materialize.toast(data.data.err, 1000);
+          Materialize.toast(response.data.err, 1000);
         }
       });
     }
 
     return false;
+  }
+
+  function updateFixedActionBtn() {
+    $('.feedback-li').before('<li><a data-position="right" data-delay="50" data-tooltip="Write Article" href="/articles/edit" class="btn-floating red waves-effect tooltipped write-article"><i class="material-icons">mode_edit</i></a></li>');
+
+    initFixedActionBtn();
+    $('.tooltipped').tooltip({delay: 50});
+  }
+
+  function initFixedActionBtn() {
+    $('.back-to-top').click(function() {
+      $('html,body').animate({
+        scrollTop: 0
+      }, 500);
+      return false;
+    });
+
+    $('.feedback').click(function() {
+      Materialize.toast('Still in development', 1500);
+    });
   }
 
   function updateNavbar(username) {
@@ -178,14 +203,14 @@
     };
 
     if (!validator.invalidForgotForm(username, email)) {
-      $.post('/forgot', postData, function(data, status) {
-        if (data.success) {
+      $.post('/forgot', postData, function(response, status) {
+        if (response.success) {
           $('#forgot-modal').modal('close');
           $('.forgot-form #forgot-username').val('');
           $('.forgot-form #forgot-email').val('');
           Materialize.toast('Confirm email has been sent', 3000);
         } else {
-          Materialize.toast(data.data.err, 1000);
+          Materialize.toast(response.data.err, 1000);
         }
       });
     }

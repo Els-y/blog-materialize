@@ -3,11 +3,12 @@ var router = express.Router();
 var csrf = require('csurf');
 var Promise = require('bluebird');
 var userPromise = require('../modules/promise/userPromise');
+var authority = require('../modules/authority');
 
 var User = require('../models/user');
 var csrfProtection = csrf();
 
-router.get('/check/:confirmUrl', checkHasLogin);
+router.get('/check/:confirmUrl', authority.checkHasLogin);
 router.get('/check/:confirmUrl', function(req, res, next) {
   if (req.session.user.confirmed) {
     res.redirect('/');
@@ -58,13 +59,5 @@ router.get('/resend', function(req, res, next) {
     res.send(status);
   });
 });
-
-function checkHasLogin(req, res, next) {
-  if (!req.session.user) {
-    return res.redirect('/');
-  } else {
-    next();
-  }
-}
 
 module.exports = router;

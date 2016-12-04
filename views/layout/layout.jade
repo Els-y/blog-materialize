@@ -8,13 +8,13 @@ html
     block css
 
   body
-    .navbar-fixed.navbar
+    .navbar
       nav.deep-purple
         .nav-wrapper
           .container
             .row
-              a.col.m1.brand-logo(href='/') Microblog
-              ul.col.offset-m2.hide-on-small-only
+              a.col.brand-logo.center(href='/') Microblog
+              ul.col.left.hide-on-small-only
                 li
                   a(href='/articles') Articles
               if user
@@ -111,10 +111,11 @@ html
       a.btn-floating.btn-large.deep-purple.lighten-2.waves-effect
         i.large.material-icons add
       ul
-        li
-          a.btn-floating.red.waves-effect.tooltipped.write-article(data-position='right', data-delay='50', data-tooltip='Write Article')
-            i.material-icons mode_edit
-        li
+        if user && user.role != 0
+          li
+            a.btn-floating.red.waves-effect.tooltipped.write-article(data-position='right', data-delay='50', data-tooltip='Write Article', href='/articles/edit')
+              i.material-icons mode_edit
+        li.feedback-li
           a.btn-floating.yellow.darken-2.waves-effect.tooltipped.feedback(data-position='right', data-delay='50', data-tooltip='Feedback')
             i.material-icons message
         li

@@ -7,10 +7,11 @@ var Promise = require('bluebird');
 var userPromise = require('../modules/promise/userPromise');
 
 var validator = require('../modules/validator');
+var authority = require('../modules/authority');
 var User = require('../models/user');
 
 /* GET users listing. */
-router.get('/settings', checkHasLogin);
+router.get('/settings', authority.checkHasLogin);
 router.get('/settings', csrfProtection, function(req, res, next) {
   res.render('users/settings', {csrfToken: req.csrfToken()});
 });
@@ -48,7 +49,7 @@ router.post('/resetpassword', csrfProtection, function(req, res, next) {
   }
 });
 
-router.post('/changepassword', checkHasLogin);
+router.post('/changepassword', authority.checkHasLogin);
 router.post('/changepassword', csrfProtection, function(req, res, next) {
   var status = {
     success: false,
@@ -91,12 +92,4 @@ router.post('/changepassword', csrfProtection, function(req, res, next) {
   }
 });
 
-// check if login
-function checkHasLogin(req, res, next) {
-  if (!req.session.user) {
-    return res.redirect('/');
-  } else {
-    next();
-  }
-}
 module.exports = router;

@@ -1,0 +1,25 @@
+extends ../layout/layout
+
+block css
+  link(rel='stylesheet', href='/stylesheets/articles.css')
+  link(rel='stylesheet', href='/stylesheets/github-markdown.css')
+  link(rel='stylesheet', href='/stylesheets/prism.css')
+
+block content
+  .container.article-container
+    .article-header
+      h1.article-title #{articleTitle}
+      .info
+        p.author-update
+          span.article-author Author: #{articleAuthor}
+          span.article-update #{articleUpdate}
+        p.article-tags
+          for tag in articleTags
+            span.new.badge.deep-purple.accent-1(data-badge-caption='') #{tag}
+    .divider
+    .article-content
+      .markdown-body
+        != articleContent
+
+block scripts
+  script(src='/javascripts/prism.js')
