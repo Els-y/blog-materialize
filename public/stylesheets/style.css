@@ -2,12 +2,16 @@ body {
   overflow-y: scroll !important;
 }
 .page-container {
+  margin-top: 20px;
   min-height: 650px;
 }
-.navbar-fixed .right > li > a{
-  margin: 0 !important;
+
+/* navbar */
+.navbar .right > li > a {
+  margin: 0 9px !important;
 }
 
+/* form */
 form input[type=email],
 form input[type=text] {
   font-size: 18px;

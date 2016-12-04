@@ -12,5 +12,6 @@ module.exports = {
         pass: process.env.MAIL_PASSWORD,
     }
   },
-  protocol: 'http'
+  protocol: 'http',
+  pageSize: 8
 };

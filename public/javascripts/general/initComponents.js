@@ -13,6 +13,7 @@
       gutter: 0, // Spacing from edge
       belowOrigin: true // Displays dropdown below the button
     });
+    
     $('.button-collapse').sideNav({
       menuWidth: 370, // Default is 240
       edge: 'right', // Choose the horizontal origin
@@ -40,7 +41,7 @@
       return false;
     });
 
-    $('.write-article, .feedback').click(function() {
+    $('.feedback').click(function() {
       Materialize.toast('Still in development', 1500);
     });
   }

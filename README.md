@@ -46,7 +46,7 @@
     * confirmed 是否激活(bool)
     * role 身份(integer 0: 普通用户，1: 管理员，2: 所有者)
 * 文章
-	* id (integer)
+	* index (string)
     * title (string)
     * content (string)
     * author (string)
