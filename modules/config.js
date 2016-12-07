@@ -13,5 +13,6 @@ module.exports = {
     }
   },
   protocol: 'http',
-  pageSize: 8
+  pageSize: 8,
+  pageBarSize: 8
 };

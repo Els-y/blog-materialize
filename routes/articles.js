@@ -19,7 +19,10 @@ router.get('/', csrfProtection, function(req, res, next) {
 });
 
 router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
-  var start = (parseInt(req.params.pageNum) - 1) * config.pageSize;
+  var pageNum = parseInt(req.params.pageNum);
+  if (pageNum < 1) return res.redirect('/articles/page/1');
+
+  var start = (pageNum - 1) * config.pageSize;
   var queryList = Article.find().sort({'updateDate': 'desc'}).skip(start).limit(config.pageSize).exec();
   var queryCount = Article.count({}).exec();
   var queryAll = Article.find().exec();
@@ -50,12 +53,15 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
       }
     });
 
+    var pageSum = Math.ceil(count / config.pageSize);
+    if (pageNum > pageSum) return res.redirect('/articles/page/' + pageSum);
     res.render('articles/articles', {
       articleList: articles,
       csrfToken: req.csrfToken(),
-      pageNow: req.params.pageNum,
-      pageSum: Math.ceil(count / config.pageSize),
-      categories: uniqAndStatisc
+      pageNum: pageNum,
+      pageSum: pageSum,
+      categories: uniqAndStatisc,
+      pageBarSize: config.pageBarSize
     });
   }).catch(function(reason) {
     res.send(util.inspect(reason));
@@ -150,9 +156,10 @@ router.get('/categories/:tag', csrfProtection, function(req, res, next) {
     res.render('articles/articles', {
       articleList: tagArticles,
       csrfToken: req.csrfToken(),
-      pageNow: 1,
+      pageNum: 1,
       pageSum: 1,
-      categories: uniqAndStatisc
+      categories: uniqAndStatisc,
+      pageBarSize: config.pageBarSize
     });
   }).catch(function(reason) {
     res.send(util.inspect(reason));
