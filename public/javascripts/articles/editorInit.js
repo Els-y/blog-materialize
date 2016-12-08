@@ -1,6 +1,4 @@
 $(function() {
-
-
   // marked
   var markedRender = new marked.Renderer();
   marked.setOptions({

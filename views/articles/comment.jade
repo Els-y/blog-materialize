@@ -1,0 +1,20 @@
+.row.comment(id='#{comment._id}')
+  .col.m1.s2.comment-avatar
+    img(src='#{comment.avatar}')
+  .col.m11.s10
+    p.comment-author #{comment.author}
+    p.comment-content #{comment.content}
+    for reply in comment.replies
+      .divider
+      .row
+        .col.m1.s2.reply-avatar
+          img(src='#{reply.avatar}')
+        .col.m11.s10
+          p.reply-author #{reply.author}
+            span.reply-time.grey-text created at #{moment(reply.time).format('LLLL')}
+          p.reply-content #{reply.content}
+    .divider
+    p
+      span.comment-time.grey-text #{moment(comment.time).format('LLLL')}
+      a.comment-reply(href='#new-comment-wrap') Reply
+.divider

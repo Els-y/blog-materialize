@@ -4,7 +4,6 @@ var csrf = require('csurf');
 var csrfProtection = csrf();
 var Promise = require('bluebird');
 var marked = require('marked');
-var moment = require('moment');
 var util = require('util');
 
 var _ = require('lodash');
@@ -12,6 +11,7 @@ var _ = require('lodash');
 var authority = require('../modules/authority');
 var config = require('../modules/config');
 var Article = require('../models/article');
+var Comment = require('../models/comment');
 
 /* GET users listing. */
 router.get('/', csrfProtection, function(req, res, next) {
@@ -28,11 +28,6 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
   var queryAll = Article.find().exec();
 
   Promise.all([queryList, queryCount, queryAll]).spread(function(articles, count, allArticles) {
-    articles.forEach(function(doc) {
-      doc.update = moment(doc.updateDate).format('LLLL');
-    });
-
-
     var categories = [];
     allArticles.forEach(function(doc) {
       categories = categories.concat(doc.categories);
@@ -68,14 +63,12 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
   });
 });
 
-router.get('/passage/:articleId', function(req, res, next) {
-  Article.findById(req.params.articleId).exec().then(function(article) {
+router.get('/passage/:articleId', csrfProtection, function(req, res, next) {
+  Promise.all([Article.findById(req.params.articleId).exec(), Comment.find({'article': req.params.articleId}).exec()]).spread(function(article, comments) {
     res.render('articles/passage', {
-      articleTitle: article.title,
-      articleAuthor: article.author,
-      articleUpdate: moment(article.updateDate).format('LLLL'),
-      articleContent: marked(article.content),
-      articleTags: article.categories
+      csrfToken: req.csrfToken(),
+      article: article,
+      articleComments: comments
     });
   }).catch(function(reason) {
     res.send(util.inspect(reason));
@@ -129,11 +122,6 @@ router.get('/categories/:tag', csrfProtection, function(req, res, next) {
   var queryCategories = Article.find({'categories': {$in: [req.params.tag]}}).sort({'updateDate': 'desc'}).exec();
 
   Promise.all([queryCategories, queryAll]).spread(function(tagArticles, allArticles) {
-    tagArticles.forEach(function(doc) {
-      doc.update = moment(doc.updateDate).format('LLLL');
-    });
-
-    // categories
     var categories = [];
     allArticles.forEach(function(doc) {
       categories = categories.concat(doc.categories);
@@ -164,7 +152,6 @@ router.get('/categories/:tag', csrfProtection, function(req, res, next) {
   }).catch(function(reason) {
     res.send(util.inspect(reason));
   });
-
 });
 
 module.exports = router;

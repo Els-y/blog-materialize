@@ -20,6 +20,13 @@ var cp = jade.compile(fs.readFileSync('*.jade'));
 console.log(cp({*: *}));
 ```
 
+## Jade使用moment
+app.js
+```javascript
+app = express();
+app.locals.moment = require('moment');
+```
+
 ## Node.js获取系统环境变量
 比如要获取环境变量里的 PATH,
 设置的时候要用 **export** 声明

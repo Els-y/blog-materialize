@@ -8,7 +8,7 @@ var app = require('../app');
 var debug = require('debug')('blog-materialize:server');
 var http = require('http');
 var mongoose = require('mongoose');
-
+mongoose.Promise = require('bluebird');
 mongoose.connect('mongodb://localhost/microblog');
 /**
  * Get port from environment and store in Express.

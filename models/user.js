@@ -6,8 +6,6 @@ var jade = require('jade');
 var mailServer = require('./mailServer');
 var config = require('../modules/config');
 
-mongoose.Promise = require('bluebird');
-
 var Schema = mongoose.Schema;
 var userScheMa = new Schema({
   username: String,
