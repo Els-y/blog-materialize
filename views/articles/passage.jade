@@ -4,22 +4,48 @@ block css
   link(rel='stylesheet', href='/stylesheets/articles.css')
   link(rel='stylesheet', href='/stylesheets/github-markdown.css')
   link(rel='stylesheet', href='/stylesheets/prism.css')
-
+  link(rel='stylesheet', href='/plugins/codemirror/lib/codemirror.css')
+  link(rel='stylesheet', href='/plugins/codemirror/addon/dialog/dialog.css')
+  
 block content
   .container.article-container
     .article-header
-      h1.article-title #{articleTitle}
+      h1.article-title #{article.title}
       .info
         p.author-update
-          span.article-author Author: #{articleAuthor}
-          span.article-update #{articleUpdate}
+          span.article-author author: #{article.author}
+          span.article-update #{moment(article.updateDate).format('LLLL')}
         p.article-tags
-          for tag in articleTags
+          for tag in article.categories
             span.new.badge.deep-purple.accent-1(data-badge-caption='') #{tag}
     .divider
     .article-content
       .markdown-body
-        != articleContent
-
+        != marked(article.content)
+    
+    .divider
+    .article-comments
+      h2.comments-title Comments
+      .comments-wrap
+        for comment in articleComments
+          include comment
+      form.comment-form#new-comment-wrap
+        input(type='hidden', name='commentId')
+        .row
+          textarea.new-comment#new-comment(name='comment-content')
+        .row
+          .right-align
+            button.btn.waves-effect.deep-purple(type='submit') submit
 block scripts
   script(src='/javascripts/prism.js')
+  script(src='/plugins/codemirror/lib/codemirror.js')
+  script(src='/plugins/codemirror/addon/edit/continuelist.js')
+  script(src='/plugins/codemirror/addon/edit/matchbrackets.js')
+  script(src='/plugins/codemirror/addon/edit/closebrackets.js')
+  script(src='/plugins/codemirror/keymap/sublime.js')
+  script(src='/plugins/codemirror/addon/search/search.js')
+  script(src='/plugins/codemirror/addon/search/searchcursor.js')
+  script(src='/plugins/codemirror/addon/dialog/dialog.js')
+  script(src='/plugins/codemirror/addon/comment/comment.js')
+  script(src='/plugins/codemirror/addon/wrap/hardwrap.js')
+  script(src='/javascripts/articles/commentInit.js')

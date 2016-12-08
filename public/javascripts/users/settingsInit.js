@@ -1,10 +1,35 @@
 (function() {
   $(function() {
    $('ul.user-settings-tabs').tabs();
-   $('#tab-information .btn').click(function() {
-     Materialize.toast('Still in development', 1500);
-   });
   });
+})();
+
+// avatar
+(function() {
+  $(function() {
+    $('#tab-information .avatar-list img').click(avatarHandler);
+    $('#tab-information .avatar-save').click(saveHandler);
+  });
+
+  function avatarHandler() {
+    $('.card-image img').attr('src', $(this).attr('src'));
+  }
+
+  function saveHandler() {
+    var postData = {
+      avatar: $('.card-image img').attr('src'),
+      _csrf: $('.change-form input[name="_csrf"]').val()
+    };
+
+    $.post('/users/changeavatar', postData, function(response, status) {
+      if (response.success) {
+        Materialize.toast('Success', 1500);
+      } else {
+        Materialize.toast(response.err, 1500);
+      }
+    });
+  }
+
 })();
 
 // change-form

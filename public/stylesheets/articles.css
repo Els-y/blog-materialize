@@ -73,6 +73,7 @@ body {
 .article-container .markdown-body {
     box-sizing: border-box;
     width: 100%;
+    min-height: 200px;
     min-width: 200px;
     max-width: 980px;
     margin: 0 auto;
@@ -80,4 +81,38 @@ body {
 }
 .article-container .markdown-body pre {
   font-size: 17px;
+}
+
+/* comments */
+.article-container .comments-title {
+  font-size: 30px;
+  font-weight: 400;
+}
+.article-container .CodeMirror {
+  border: 1px solid lightgray;
+  height: 150px;
+}
+.article-container .comment .comment-avatar img,
+.article-container .comment .reply-avatar img {
+  width: 60px;
+}
+.article-container .comment .comment-author,
+.article-container .comment .reply-author {
+  font-size: 18px;
+  font-weight: 500;
+}
+.article-container .comment .comment-content,
+.article-container .comment .reply-content {
+  word-break: break-all;
+}
+.article-container .comment .comment-reply {
+  margin-left: 50px;
+}
+.article-container .comment .reply-time {
+  font-size: 15px;
+  font-weight: normal;
+  padding-left: 20px;
+}
+.article-container .comment-form {
+  margin-top: 30px;
 }

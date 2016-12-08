@@ -3,5 +3,5 @@
     a.card-title.black-text.truncate(href='/articles/passage/#{article._id}') #{article.title}
     a.grey-text.truncate(href='/articles/passage/#{article._id}') #{article.intro}
   .card-action.right-align
-    span.left #{article.update}
+    span.left #{moment(article.updateDate).format('LLLL')}
     a(href='/articles/passage/#{article._id}') readmore

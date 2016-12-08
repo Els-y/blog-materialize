@@ -8,11 +8,10 @@
 * 评论
 	* **只有登录了的用户可以使用评论功能！！**
 	* 评论、回复、删除(回复评论只能回复一级)
-	* 支持点赞功能
 	* 统计评论个数
 * 消息
 	* **只有登录了的用户会有消息！！**
-  * 评论/回复评论时通知对方
+    * 评论/回复评论时通知对方
 	* 使用必须登录的功能时提醒登录
 	* 管理员文章被修改时
 	* 反馈信息给所有者
@@ -56,12 +55,11 @@
     * pageviews (integer)
 * 评论
     * id (integer)
-    * deep(integer)
-    * fromCommet (integer)
+    * articleTitle (string)
     * author (string)
     * content (string)
-    * articleTitle (string)
-    * like (integer)
+    * deep(integer)
+    * fromCommet (ObjectId)
 
 ##视图
 * 主页

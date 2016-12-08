@@ -9,6 +9,7 @@ var userPromise = require('../modules/promise/userPromise');
 var validator = require('../modules/validator');
 var authority = require('../modules/authority');
 var User = require('../models/user');
+var Avatar = require('../models/avatar');
 
 /* GET users listing. */
 router.get('/settings', authority.checkHasLogin);
@@ -88,8 +89,32 @@ router.post('/changepassword', csrfProtection, function(req, res, next) {
     }).finally(function() {
       res.send(status);
     });
-
   }
+});
+
+router.post('/changeavatar', authority.checkHasLogin);
+router.post('/changeavatar', csrfProtection, function(req, res, next) {
+  var status = {
+    success: false,
+    err: null
+  };
+
+  Avatar.findOne({src: req.body.avatar}).exec().then(function(avatar) {
+    if (avatar) return Promise.resolve();
+    else return Promise.reject("Avatar doesn't exist");
+  }).then(function() {
+    return userPromise.findUserByNamePromise(req.session.user.username);
+  }).then(function(user) {
+    user.avatar = req.body.avatar;
+    return user.save();
+  }).then(function(user) {
+    req.session.user = user;
+    status.success = true;
+  }).catch(function(reason) {
+    status.err = reason;
+  }).finally(function() {
+    res.send(status);
+  });
 });
 
 module.exports = router;

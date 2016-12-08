@@ -18,25 +18,52 @@ block content
   .container
     .divider
     ul.pagination
-      - if (pageNow == 1)
+      - if (pageNum == 1)
         li.disabled
           a(href='#') <
       - else
         li.waves-effect
-          a(href='/articles/page/#{parseInt(pageNow) - 1}') <
-      - for (var i = 1; i <= pageSum; ++i)
-        - if (i == pageNow)
-          li.active.deep-purple.lighten-2
-            a(href='/articles/page/#{i}')= i
+          a(href='/articles/page/#{parseInt(pageNum) - 1}') <
+      - if (pageSum <= pageBarSize)    
+        - for (var i = 1; i <= pageSum; ++i)
+          - if (i == pageNum)
+            li.active.deep-purple.lighten-2
+              a(href='/articles/page/#{i}')= i
+          - else
+            li.waves-effect
+              a(href='/articles/page/#{i}')= i
+      - else
+        - if (pageNum < 3)
+          - for (var i = 1; i <= pageBarSize; ++i)
+            - if (i == pageNum)
+              li.active.deep-purple.lighten-2
+                a(href='/articles/page/#{i}')= i
+            - else
+              li.waves-effect
+                a(href='/articles/page/#{i}')= i
+        - else if (pageNum + pageBarSize - 2 <= pageSum)
+          - for (var i = pageNum - 1; i <= pageNum + pageBarSize - 2; ++i)
+            - if (i == pageNum)
+              li.active.deep-purple.lighten-2
+                a(href='/articles/page/#{i}')= i
+            - else
+              li.waves-effect
+                a(href='/articles/page/#{i}')= i
         - else
-          li.waves-effect
-            a(href='/articles/page/#{i}')= i
-      - if (pageNow == pageSum)
+          - for (var i = pageSum - pageBarSize + 1; i <= pageSum; ++i)
+            - if (i == pageNum)
+              li.active.deep-purple.lighten-2
+                a(href='/articles/page/#{i}')= i
+            - else
+              li.waves-effect
+                a(href='/articles/page/#{i}')= i
+                
+      - if (pageNum == pageSum)
           li.disabled
             a(href='#') >
       - else
           li.waves-effect
-            a(href='/articles/page/#{parseInt(pageNow) + 1}') >
+            a(href='/articles/page/#{parseInt(pageNum) + 1}') >
 
 block scripts
   script(src='/javascripts/articles/articles.js')

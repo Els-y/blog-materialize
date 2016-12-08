@@ -16,8 +16,13 @@ var users = require('./routes/users');
 var articles = require('./routes/articles');
 var confirm = require('./routes/confirm');
 var forgot = require('./routes/forgot');
+var comments = require('./routes/comments');
 
 var app = express();
+
+// jade plugins
+app.locals.moment = require('moment');
+app.locals.marked = require('marked');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,6 +37,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
+  resave: true,
+  saveUninitialized: true,
   secret: config.secret,
 }));
 
@@ -60,6 +67,7 @@ app.use('/users', users);
 app.use('/articles', articles);
 app.use('/forgot', forgot);
 app.use('/confirm', confirm);
+app.use('/comments', comments);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
