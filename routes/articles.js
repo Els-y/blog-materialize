@@ -95,7 +95,7 @@ router.post('/edit/addnew', csrfProtection, function(req, res, next) {
     return res.send(status);
   }
 
-  var nowtime = Date();
+  var nowtime = new Date().toISOString();
   var articleInfo = {
     title: req.body.title,
     content: req.body.content,

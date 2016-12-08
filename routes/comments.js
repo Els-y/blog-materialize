@@ -29,7 +29,7 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
       author: req.session.user.username,
       avatar: req.session.user.avatar,
       content: req.body.content,
-      time: Date(),
+      time: new Date().toISOString(),
       replies: []
     };
 
@@ -53,7 +53,7 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
       author: req.session.user.username,
       avatar: req.session.user.avatar,
       content: req.body.content,
-      time: Date()
+      time: new Date().toISOString()
     };
 
     Comment.findById({_id: req.body.commentId}).exec().then(function(comment) {
@@ -63,7 +63,6 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
         return Promise.reject("Comment doesn't exist");
     }).then(function(comment) {
       comment.replies.push(reply);
-      console.log(comment.replies);
       return comment.save();
     }).then(function() {
       status.success = true;
