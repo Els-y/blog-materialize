@@ -12,6 +12,8 @@ var authority = require('../modules/authority');
 var config = require('../modules/config');
 var Article = require('../models/article');
 var Comment = require('../models/comment');
+var Reply = require('../models/reply');
+var Category = require('../models/category');
 
 /* GET users listing. */
 router.get('/', csrfProtection, function(req, res, next) {
@@ -20,42 +22,25 @@ router.get('/', csrfProtection, function(req, res, next) {
 
 router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
   var pageNum = parseInt(req.params.pageNum);
+  var start = (pageNum - 1) * config.pageSize;
+
   if (pageNum < 1) return res.redirect('/articles/page/1');
 
-  var start = (pageNum - 1) * config.pageSize;
-  var queryList = Article.find().sort({'updateDate': 'desc'}).skip(start).limit(config.pageSize).exec();
-  var queryCount = Article.count({}).exec();
-  var queryAll = Article.find().exec();
+  var articlePromise = Article.find().sort({'updateDate': 'desc'}).skip(start).limit(config.pageSize).exec();
+  var articleCount = Article.count().exec();
+  var categoryPromise = Category.find().sort({'name': 'asc'}).exec();
 
-  Promise.all([queryList, queryCount, queryAll]).spread(function(articles, count, allArticles) {
-    var categories = [];
-    allArticles.forEach(function(doc) {
-      categories = categories.concat(doc.categories);
-    });
-
-    var uniqAndSort = _.filter(categories, function(tag) {
-      return tag !== '';
-    }).sort();
-
-    var uniqAndStatisc = [];
-    var target;
-    _.map(uniqAndSort, function(tag) {
-      target = _.find(uniqAndStatisc, function(o) {return o.name === tag;});
-      if (target) {
-        target.count++;
-      } else {
-        uniqAndStatisc.push({name: tag, count: 1});
-      }
-    });
-
-    var pageSum = Math.ceil(count / config.pageSize);
+  Promise.all([articlePromise, categoryPromise, articleCount]).spread(function(articles, categories, articlesSize) {
+    var pageSum = Math.ceil(articlesSize / config.pageSize);
+    if (pageSum === 0) pageSum = 1;
     if (pageNum > pageSum) return res.redirect('/articles/page/' + pageSum);
+
     res.render('articles/articles', {
       articleList: articles,
       csrfToken: req.csrfToken(),
       pageNum: pageNum,
       pageSum: pageSum,
-      categories: uniqAndStatisc,
+      categories: categories,
       pageBarSize: config.pageBarSize
     });
   }).catch(function(reason) {
@@ -64,17 +49,35 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
 });
 
 router.get('/passage/:articleId', csrfProtection, function(req, res, next) {
-  Promise.all([Article.findById(req.params.articleId).exec(), Comment.find({'article': req.params.articleId}).exec()]).spread(function(article, comments) {
+  var comments = {
+    path: 'comments',
+    select: 'author content time replies',
+    populate: [
+      {
+        path: 'author',
+        select: 'username avatar -_id'
+      },
+      {
+        path: 'replies',
+        select: '-_id',
+        populate: {
+          path: 'author',
+          select: 'username avatar -_id'
+        }
+      }
+    ]
+  };
+  var articlePromise = Article.findById(req.params.articleId).populate([{path: 'author', select: 'username avatar'}, {path: 'categories', select: 'name'}, comments]).exec().then(function(article) {
     res.render('articles/passage', {
       csrfToken: req.csrfToken(),
       article: article,
-      articleComments: comments
     });
   }).catch(function(reason) {
     res.send(util.inspect(reason));
   });
 });
 
+// add new passage
 router.get('/edit', authority.checkIfAdmin);
 router.get('/edit', csrfProtection, function(req, res, next) {
   res.render('articles/edit', {csrfToken: req.csrfToken()});
@@ -96,19 +99,54 @@ router.post('/edit/addnew', csrfProtection, function(req, res, next) {
   }
 
   var nowtime = new Date().toISOString();
+  var categories = _.uniq(_.filter(req.body.categories.split('+-+'), function(tag) {return tag !== '';}));
+
   var articleInfo = {
     title: req.body.title,
+    author: req.session.user,
     content: req.body.content,
     intro: req.body.intro,
-    author: req.session.user.username,
-    categories: req.body.categories.split('+-+'),
     publishDate: nowtime,
     updateDate: nowtime,
     pageviews: 0
   };
 
   var post = new Article(articleInfo);
-  post.save().then(function() {
+  var queryPromise = [post.save()];
+  for (var i = 0; i < categories.length; ++i) {
+    queryPromise.push(Category.findOne({name: categories[i]}).exec());
+  }
+
+  Promise.all(queryPromise).spread(function() {
+    // 1 ~ end is categoriesPromise
+    var nextPromise = Array.prototype.slice.call(arguments, 0);
+    for (var i = 1; i < nextPromise.length; ++i) {
+      if (!nextPromise[i]) {
+        var addtag = new Category({
+          name: categories[i - 1],
+          count: 0,
+        });
+        nextPromise[i] = addtag.save();
+      }
+    }
+
+    return Promise.all(nextPromise);
+  }).spread(function() {
+    var savedPost = arguments[0];
+    var queryCategories = Array.prototype.slice.call(arguments, 1, arguments.length);
+    var savePromise = [];
+
+    queryCategories.forEach(function(tag, index) {
+      if (tag) {
+        tag.articles.push(savedPost);
+        tag.count++;
+        savedPost.categories.push(tag);
+        savePromise.push(tag.save());
+      }
+    });
+    savePromise.push(savedPost.save());
+    return Promise.all(savePromise);
+  }).spread(function() {
     status.success = true;
   }).catch(function(reason) {
     status.data.err = reason;
@@ -118,35 +156,16 @@ router.post('/edit/addnew', csrfProtection, function(req, res, next) {
 });
 
 router.get('/categories/:tag', csrfProtection, function(req, res, next) {
-  var queryAll = Article.find().exec();
-  var queryCategories = Article.find({'categories': {$in: [req.params.tag]}}).sort({'updateDate': 'desc'}).exec();
+  var categoryPromise = Category.find().sort({'name': 'asc'}).exec();
+  var queryCategoryPromise = Category.findOne({'name': req.params.tag}).populate('articles', 'title intro updateDate').exec();
 
-  Promise.all([queryCategories, queryAll]).spread(function(tagArticles, allArticles) {
-    var categories = [];
-    allArticles.forEach(function(doc) {
-      categories = categories.concat(doc.categories);
-    });
-    var sorted = _.filter(categories, function(tag) {
-      return tag !== '';
-    }).sort();
-
-    var uniqAndStatisc = [];
-    var target;
-    _.map(sorted, function(tag) {
-      target = _.find(uniqAndStatisc, function(o) {return o.name === tag;});
-      if (target) {
-        target.count++;
-      } else {
-        uniqAndStatisc.push({name: tag, count: 1});
-      }
-    });
-
+  Promise.all([queryCategoryPromise, categoryPromise]).spread(function(queryCategory, categories) {
     res.render('articles/articles', {
-      articleList: tagArticles,
+      articleList: queryCategory.articles,
       csrfToken: req.csrfToken(),
       pageNum: 1,
       pageSum: 1,
-      categories: uniqAndStatisc,
+      categories: categories,
       pageBarSize: config.pageBarSize
     });
   }).catch(function(reason) {

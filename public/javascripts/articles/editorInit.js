@@ -49,13 +49,14 @@ $(function() {
     var content = editor.getValue();
     var intro = $('.edit-preview').text().slice(0, 150);
     var categories = $('.chips-placeholder').find('.chip').map(function() {
-      return this.innerText.replace('close','');
+      return this.innerText.replace('close','').trim();
     }).toArray();
+    var noEmptyAnduniqCategories = _.uniq(_.filter(categories, function(tag) { return tag !== ''; }));
     var _csrf = $('.edit-form input[name="_csrf"]').val();
 
     var postData = {
       title: title,
-      categories: categories.join('+-+'),
+      categories: noEmptyAnduniqCategories.join('+-+'),
       content: content,
       intro: intro,
       _csrf: _csrf

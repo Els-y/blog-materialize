@@ -6,18 +6,18 @@ block css
   link(rel='stylesheet', href='/stylesheets/prism.css')
   link(rel='stylesheet', href='/plugins/codemirror/lib/codemirror.css')
   link(rel='stylesheet', href='/plugins/codemirror/addon/dialog/dialog.css')
-  
+
 block content
   .container.article-container
     .article-header
       h1.article-title #{article.title}
       .info
         p.author-update
-          span.article-author author: #{article.author}
+          span.article-author author: #{article.author.username}
           span.article-update #{moment(article.updateDate).format('LLLL')}
         p.article-tags
           for tag in article.categories
-            span.new.badge.deep-purple.accent-1(data-badge-caption='') #{tag}
+            span.new.badge.deep-purple.accent-1(data-badge-caption='') #{tag.name}
     .divider
     .article-content
       .markdown-body
@@ -27,7 +27,7 @@ block content
     .article-comments
       h2.comments-title Comments
       .comments-wrap
-        for comment in articleComments
+        for comment in article.comments
           include comment
       form.comment-form#new-comment-wrap
         input(type='hidden', name='commentId')
