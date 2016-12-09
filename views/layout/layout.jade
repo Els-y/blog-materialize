@@ -42,18 +42,18 @@ html
             form.login-form
               input(type='hidden', name='_csrf', value='#{csrfToken}')
               .row
-                .input-field.col.s12
+                .input-field.col.m12.s10.offset-s1
                   input#login-username(type='text', name='username')
                   label(for='login-username') Username
               .row
-                .input-field.col.s12
+                .input-field.col.m12.s10.offset-s1
                   input#login-password(type='password', name='password')
                   label(for='login-password') Password
               .row
-                p.col
+                p.col.m12.s10.offset-s1
                   input#login-remember_me(type='checkbox', name='remember_me')
                   label(for='login-remember_me') Remember me
-                p.col
+                p.col.m12.s10.offset-s1
                   a.blue-text.modal-trigger(href='#forgot-modal') Forgot password?
               .row
                 .col.s10.offset-s1
@@ -85,19 +85,19 @@ html
         .row
           form.regist-form
             .row
-              .input-field.col.s12
+              .input-field.col.m12.s10.offset-s1
                 input#regist-username(type='text', name='username')
                 label(for='regist-username') Username
             .row
-              .input-field.col.s12
+              .input-field.col.m12.s10.offset-s1
                 input#regist-email(type='email', name='email')
                 label(for='regist-email') Email
             .row
-              .input-field.col.s12
+              .input-field.col.m12.s10.offset-s1
                 input#regist-password(type='password', name='password')
                 label(for='regist-password') Password
             .row
-              .input-field.col.s12
+              .input-field.col.m12.s10.offset-s1
                 input#regist-confirm(type='password', name='confirm')
                 label(for='regist-confirm') Confirm Password
             .row

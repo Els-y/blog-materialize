@@ -1,16 +1,16 @@
 .row.comment(id='#{comment._id}')
   .col.m1.s2.comment-avatar
-    img(src='#{comment.avatar}')
+    img(src='#{comment.author.avatar}')
   .col.m11.s10
-    p.comment-author #{comment.author}
+    p.comment-author #{comment.author.username}
     p.comment-content #{comment.content}
     for reply in comment.replies
       .divider
       .row
         .col.m1.s2.reply-avatar
-          img(src='#{reply.avatar}')
+          img(src='#{reply.author.avatar}')
         .col.m11.s10
-          p.reply-author #{reply.author}
+          p.reply-author #{reply.author.username}
             span.reply-time.grey-text created at #{moment(reply.time).format('LLLL')}
           p.reply-content #{reply.content}
     .divider
