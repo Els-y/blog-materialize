@@ -36,6 +36,19 @@ block content
         .row
           .right-align
             button.btn.waves-effect.deep-purple(type='submit') submit
+
+    #delete-modal.modal.modal-fixed-footer
+      .modal-content
+        .row
+          h4.delete-title Confirm
+          p.delete-content.center-align Do you really want to delete it?
+        form.delete-form
+          input.delete-type(type='hidden', name='type')
+          input.delete-id(type='hidden', name='id')
+      .modal-footer
+        a.modal-action.modal-close.waves-effect.btn-flat.delete-disagree(href='#!') cancel
+        a.modal-action.modal-close.waves-effect.deep-purple.white-text.btn-flat.delete-agree(href='#!') yes
+
 block scripts
   script(src='/javascripts/prism.js')
   script(src='/plugins/codemirror/lib/codemirror.js')
@@ -48,4 +61,4 @@ block scripts
   script(src='/plugins/codemirror/addon/dialog/dialog.js')
   script(src='/plugins/codemirror/addon/comment/comment.js')
   script(src='/plugins/codemirror/addon/wrap/hardwrap.js')
-  script(src='/javascripts/articles/commentInit.js')
+  script(src='/javascripts/articles/passageInit.js')

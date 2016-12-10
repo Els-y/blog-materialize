@@ -66,11 +66,14 @@
     if (!validator.invalidLoginForm(username, password)) {
       $.post('/login', postData, function(response, status) {
         if (response.success) {
-          updateNavbar(response.data.username);
           $('.button-collapse').sideNav('hide');
-
-          if (response.data.role !== 0)
+          updateNavbar(response.data.username);
+          if (response.data.role !== 0) {
             updateFixedActionBtn();
+          }
+          if ($('.article-container').length !== 0) {
+            updateComment();
+          }
 
           Materialize.toast('Welcome again', 3000);
           if (!response.data.ifconfirmed)
@@ -106,6 +109,9 @@
           Materialize.toast('Please confirm your account', 3000);
           updateNavbar(response.data.username);
           updateFixedActionBtn();
+          if ($('.article-container').length !== 0) {
+            updateComment();
+          }
         } else {
           Materialize.toast(response.data.err, 1000);
         }
@@ -158,6 +164,49 @@
       belowOrigin: true // Displays dropdown below the button
       }
     );
+  }
+
+  function updateComment() {
+    $.ajax({
+      url: window.location.pathname,
+      type: 'GET',
+      success: function(html) {
+        var reg = /(<div class="comments-wrap">.+<\/div>)<form id="new-comment-wrap"/;
+        var new_comments = reg.exec(html);
+        $('.comments-wrap').replaceWith(new_comments[1]);
+        $('.comment .comment-reply').click(replyHandler);
+        $('.comment .comment-delete').click(commentRemoveHandler);
+        $('.comment .reply-delete').click(replyRemoveHandler);
+      }
+    });
+    function replyRemoveHandler() {
+      $('.delete-type').val('reply');
+      $('.delete-id').val($(this).parents('.reply').attr('id'));
+      return true;
+    }
+    function commentRemoveHandler() {
+      $('.delete-type').val('comment');
+      $('.delete-id').val($(this).parents('.comment').attr('id'));
+      return true;
+    }
+    function replyHandler() {
+      var $comment = $(this).parents('.comment');
+      var id = $comment.attr('id');
+      var author = $comment.find('.comment-author').text();
+      var $chip = $('.comment-form .chip');
+      var closeHtml = '<i class="close material-icons">close</i>';
+      var chipHtml = '<div class="chip">Reply to ' + author + closeHtml + '</div>';
+
+      if ($chip.length !== 0) {
+        $chip.html('Reply to ' + author + closeHtml);
+      } else {
+        $('.comment-form').prepend(chipHtml);
+      }
+
+      $('.comment-form input:hidden').val(id);
+
+      return true;
+    }
   }
 
   $(function() {

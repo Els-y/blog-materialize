@@ -59,7 +59,6 @@ router.get('/passage/:articleId', csrfProtection, function(req, res, next) {
       },
       {
         path: 'replies',
-        select: '-_id',
         populate: {
           path: 'author',
           select: 'username avatar -_id'

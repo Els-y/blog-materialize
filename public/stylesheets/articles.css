@@ -108,11 +108,31 @@ body {
 .article-container .comment .comment-reply {
   margin-left: 50px;
 }
+.article-container .comment .comment-delete {
+  margin-left: 30px;
+}
 .article-container .comment .reply-time {
   font-size: 15px;
   font-weight: normal;
   padding-left: 20px;
 }
+.article-container .comment .reply-delete {
+  margin-left: 30px;
+  font-size: 15px;
+  font-weight: normal;;
+}
 .article-container .comment-form {
   margin-top: 30px;
+}
+
+/* delete-modal */
+#delete-modal {
+  width: 350px;
+  height: 220px;
+}
+#delete-modal .delete-title {
+  font-size: 25px;
+}
+#delete-modal .delete-content {
+  font-size: 18px;
 }
