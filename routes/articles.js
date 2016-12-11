@@ -183,7 +183,7 @@ router.post('/edit/addnew', csrfProtection, function(req, res, next) {
   });
 });
 
-// delete and edit
+// delete
 router.post('/delete', csrfProtection, function(req, res, next) {
   var status = {
     success: false,
@@ -229,4 +229,117 @@ router.post('/delete', csrfProtection, function(req, res, next) {
     res.send(status);
   });
 });
+
+// modify edit
+router.get('/modify', csrfProtection, authority.checkIfAdmin);
+router.get('/modify', csrfProtection, function(req, res, next) {
+  var reg_articleId = /passage\/(.+)/;
+  var articleId = reg_articleId.exec(req.headers.referer);
+
+  if (!articleId) {
+    return res.redirect('/');
+  }
+
+  Article.findById(articleId[1]).populate('author').exec().then(function(article) {
+    if (article && (req.session.user.role === 2 || (req.session.user.role === 1 && req.session.user.username === article.author.username))) {
+      return Promise.resolve(article);
+    } else {
+      return Promise.reject();
+    }
+  }).then(function(article) {
+    res.render('articles/edit', {
+      csrfToken: req.csrfToken(),
+      article: article
+    });
+  }).catch(function() {
+    res.redirect('/');
+  });
+});
+
+router.post('/getArticle', csrfProtection, authority.checkIfAdmin);
+router.post('/getArticle', csrfProtection, function(req, res, next) {
+  var nullArticle = {
+    content: 'Error',
+    categories: []
+  };
+  Article.findById(req.body._id).populate('categories').exec().then(function(article) {
+    if (article) res.send(article);
+    else res.send(nullArticle);
+  });
+});
+
+router.post('/modify/submit', csrfProtection, function(req, res, next) {
+  var status = {
+    success: false,
+    data: {
+      title: req.body.title,
+      err: null,
+    }
+  };
+
+  var categories = _.uniq(_.filter(req.body.categories.split('+-+'), function(tag) {return tag !== '';}));
+
+  if (!req.session.user) {
+    status.data.err = 'Please login first';
+    return res.send(status);
+  } else if (!req.body._id) {
+    status.data.err = 'Invalid operation';
+    return res.send(status);
+  }
+
+  Article.findById(req.body._id).populate('categories').exec().then(function(article) {
+    var addCategories = _.filter(categories, function(tag) {
+      for (var i = 0; i < article.categories.length; ++i)
+        if (article.categories[i].name === tag) return false;
+      return true;
+    });
+
+    var removeCategories = _.filter(article.categories, function(tag) {
+      for (var i = 0; i < categories.length; ++i)
+        if (tag.name === categories[i]) return false;
+      return true;
+    });
+
+    var removeId = _.map(removeCategories, function(tag) {
+      return tag._id;
+    });
+
+    article.title = req.body.title;
+    article.content = req.body.content;
+    article.intro = req.body.intro;
+
+    var promiseAll = [article.save(), addCategories.length];
+    _.forEach(addCategories, function(tag, index) {
+      var addtag = new Category({
+        name: tag,
+        count: 1,
+        articles: article
+      });
+      promiseAll.push(addtag.save());
+    });
+
+    _.forEach(removeCategories, function(tag, index) {
+      promiseAll.push(Article.update({_id: article._id}, {$pull: {categories: tag._id}}).exec());
+    });
+
+    promiseAll.push(Category.update({_id: {$in: removeId}}, {$inc: {count: -1}}, {multi: true}).exec());
+    return Promise.all(promiseAll);
+  }).spread(function() {
+    var article = arguments[0];
+    var addLength = arguments[1];
+    var addCategories = Array.prototype.slice.call(arguments, 2, addLength + 2);
+    var promiseAll = [];
+    promiseAll.push(Article.update({_id: article._id}, {$push: {categories: {$each: addCategories}}}).exec());
+    promiseAll.push(Category.remove({count: {$lt: 1}}));
+
+    return Promise.all(promiseAll);
+  }).spread(function() {
+    status.success = true;
+  }).catch(function(reason) {
+    status.data.err = 'errrrr';
+  }).finally(function() {
+    res.send(status);
+  });
+});
+
 module.exports = router;

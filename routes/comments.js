@@ -21,6 +21,9 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
   if (!req.session.user) {
     status.err = 'Please login first';
     return res.send(status);
+  } else if (!articleId) {
+    status.err = 'Invalid operation';
+    return res.send(status);
   } else if (req.body.content.trim() === '') {
     status.err = 'Comment empty';
     return res.send(status);
