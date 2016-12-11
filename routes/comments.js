@@ -27,7 +27,7 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
   }
 
   if (req.body.reply === 'false') {  // new comment
-    Article.findById({_id: articleId}).exec().then(function(article) {
+    Article.findById(articleId).exec().then(function(article) {
       if (article) return Promise.resolve(article);
       else return Promise.reject("Article doesn't exist");
     }).then(function(article) {
@@ -56,14 +56,17 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
       time: new Date().toISOString()
     });
 
-    Promise.all([Comment.findById({_id: req.body.commentId}).exec(), reply.save()]).spread(function(comment, reply) {
-      if (comment) {
-        comment.replies.push(reply);
-        return comment.save();
-      } else {
+    Promise.all([Article.findById(articleId).exec(), Comment.findById(req.body.commentId).exec(), reply.save()]).spread(function(article, comment, reply) {
+      if (!comment) {
         return Promise.reject("Comment doesn't exist");
+      } else if (!article) {
+        return Promise.reject("Article doesn't exist");
+      } else  {
+        reply.article = article;
+        comment.replies.push(reply);
+        return Promise.all([reply.save(), comment.save()]);
       }
-    }).then(function(comment) {
+    }).spread(function() {
       status.success = true;
     }).catch(function(reason) {
       status.err = reason;
@@ -71,6 +74,70 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
       res.send(status);
     });
   }
+});
+
+router.post('/removereply', csrfProtection, authority.checkHasLogin);
+router.post('/removereply', csrfProtection, function(req, res, next) {
+  var status = {
+    success: false,
+    err: null
+  };
+
+  if (!req.body._id) {
+    status.err = "Invalid operation";
+    return res.send(status);
+  }
+
+  Reply.findById(req.body._id).populate('author', 'username role').then(function(reply) {
+    if (reply) {
+      if (req.session.user.role === 2 || (req.session.user.role === 1 && reply.author.role !== 2) || reply.author.username == req.session.user.username)
+        return Promise.resolve(reply);
+      else
+        return Promise.reject("Permission isn't enough");
+    } else {
+      return Promise.reject("Reply doesn't exist");
+    }
+  }).then(function(reply) {
+    return Promise.all([Comment.update({replies: {$in: [reply._id]}}, {$pull: {replies: reply._id}}).exec(), Reply.remove({_id: reply._id}).exec()]);
+  }).spread(function() {
+    status.success = true;
+  }).catch(function(reason) {
+    status.err = reason;
+  }).finally(function() {
+    res.send(status);
+  });
+});
+
+router.post('/removecomment', csrfProtection, authority.checkHasLogin);
+router.post('/removecomment', csrfProtection, function(req, res, next) {
+  var status = {
+    success: false,
+    err: null
+  };
+
+  if (!req.body._id) {
+    status.err = "Invalid operation";
+    return res.send(status);
+  }
+
+  Comment.findById(req.body._id).populate('author', 'username role').then(function(comment) {
+    if (comment) {
+      if (req.session.user.role === 2 || (req.session.user.role === 1 && comment.author.role !== 2) || comment.author.username == req.session.user.username)
+        return Promise.resolve(comment);
+      else
+        return Promise.reject("Permission isn't enough");
+    } else {
+      return Promise.reject("Comment doesn't exist");
+    }
+  }).then(function(comment) {
+    return Promise.all([Reply.remove({_id: {$in: comment.replies}}).exec(), comment.remove()]);
+  }).spread(function() {
+    status.success = true;
+  }).catch(function(reason) {
+    status.err = reason;
+  }).finally(function() {
+    res.send(status);
+  });
 });
 
 module.exports = router;

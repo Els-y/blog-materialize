@@ -48,32 +48,60 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
   });
 });
 
+router.get('/categories/:tag', csrfProtection, function(req, res, next) {
+  var categoryPromise = Category.find().sort({'name': 'asc'}).exec();
+  var queryCategoryPromise = Category.findOne({'name': req.params.tag}).populate('articles', 'title intro updateDate').exec();
+
+  Promise.all([queryCategoryPromise, categoryPromise]).spread(function(queryCategory, categories) {
+    res.render('articles/articles', {
+      articleList: queryCategory.articles,
+      csrfToken: req.csrfToken(),
+      pageNum: 1,
+      pageSum: 1,
+      categories: categories,
+      pageBarSize: config.pageBarSize
+    });
+  }).catch(function(reason) {
+    // res.send(util.inspect(reason));
+    res.redirect('/articles');
+  });
+});
+
 router.get('/passage/:articleId', csrfProtection, function(req, res, next) {
-  var comments = {
-    path: 'comments',
-    select: 'author content time replies',
-    populate: [
-      {
-        path: 'author',
-        select: 'username avatar -_id'
-      },
-      {
-        path: 'replies',
-        select: '-_id',
-        populate: {
+  var populateParams = [
+    {
+      path: 'author',
+      select: 'username role avatar'
+    },
+    {
+      path: 'categories',
+      select: 'name'
+    },
+    {
+      path: 'comments',
+      select: 'author content time replies',
+      populate: [
+        {
           path: 'author',
-          select: 'username avatar -_id'
+          select: 'username avatar role -_id'
+        },
+        {
+          path: 'replies',
+          populate: {
+            path: 'author',
+            select: 'username avatar role -_id'
+          }
         }
-      }
-    ]
-  };
-  var articlePromise = Article.findById(req.params.articleId).populate([{path: 'author', select: 'username avatar'}, {path: 'categories', select: 'name'}, comments]).exec().then(function(article) {
+      ]
+    }
+  ];
+  var articlePromise = Article.findById(req.params.articleId).populate(populateParams).exec().then(function(article) {
     res.render('articles/passage', {
       csrfToken: req.csrfToken(),
       article: article,
     });
   }).catch(function(reason) {
-    res.send(util.inspect(reason));
+    res.redirect('/articles');
   });
 });
 
@@ -155,22 +183,50 @@ router.post('/edit/addnew', csrfProtection, function(req, res, next) {
   });
 });
 
-router.get('/categories/:tag', csrfProtection, function(req, res, next) {
-  var categoryPromise = Category.find().sort({'name': 'asc'}).exec();
-  var queryCategoryPromise = Category.findOne({'name': req.params.tag}).populate('articles', 'title intro updateDate').exec();
+// delete and edit
+router.post('/delete', csrfProtection, function(req, res, next) {
+  var status = {
+    success: false,
+    err: null
+  };
 
-  Promise.all([queryCategoryPromise, categoryPromise]).spread(function(queryCategory, categories) {
-    res.render('articles/articles', {
-      articleList: queryCategory.articles,
-      csrfToken: req.csrfToken(),
-      pageNum: 1,
-      pageSum: 1,
-      categories: categories,
-      pageBarSize: config.pageBarSize
-    });
+  if (!req.session.user) {
+    status.err = 'Please login first';
+    return res.send(status);
+  } else if (req.session.user.role === 0) {
+    status.err = "Permission isn't enough";
+    return res.send(status);
+  }
+
+  if (!req.body._id) {
+    status.err = "Invalid operation";
+    return res.send(status);
+  }
+
+  Article.findById(req.body._id).populate('author').then(function(article) {
+    if (article) {
+      if (req.session.user.role === 2 || (req.session.user.role === 1 && req.session.user.username === article.author.username))
+        return Promise.resolve(article);
+      else
+        return Promise.reject("Permission isn't enough");
+    } else {
+      return Promise.reject("Article doesn't exist");
+    }
+  }).then(function(article) {
+    return Promise.all([
+      Reply.remove({article: article}),
+      Comment.remove({article: article}),
+      article.remove(),
+      Category.update({articles: {$in: [article._id]}}, {$inc: {count: -1}, $pull: {articles: article._id}}, {multi: true}).exec()
+    ]);
+  }).spread(function() {
+    return Category.remove({count: 0});
+  }).then(function() {
+    status.success = true;
   }).catch(function(reason) {
-    res.send(util.inspect(reason));
+    status.err = reason;
+  }).finally(function() {
+    res.send(status);
   });
 });
-
 module.exports = router;

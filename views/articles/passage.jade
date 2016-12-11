@@ -9,12 +9,15 @@ block css
 
 block content
   .container.article-container
-    .article-header
+    .article-header(id="#{article._id}")
       h1.article-title #{article.title}
       .info
         p.author-update
           span.article-author author: #{article.author.username}
           span.article-update #{moment(article.updateDate).format('LLLL')}
+          if user && (user.role === 2 || user.role === 1 && user.username === article.author.username)
+            a.article-edit(href='#') Edit
+            a.article-delete.modal-trigger(href='#delete-modal') Delete
         p.article-tags
           for tag in article.categories
             span.new.badge.deep-purple.accent-1(data-badge-caption='') #{tag.name}
@@ -36,6 +39,19 @@ block content
         .row
           .right-align
             button.btn.waves-effect.deep-purple(type='submit') submit
+
+    #delete-modal.modal.modal-fixed-footer
+      .modal-content
+        .row
+          h4.delete-title Confirm
+          p.delete-content.center-align Do you really want to delete it?
+        form.delete-form
+          input.delete-type(type='hidden', name='type')
+          input.delete-id(type='hidden', name='id')
+      .modal-footer
+        a.modal-action.modal-close.waves-effect.btn-flat.delete-disagree(href='#!') cancel
+        a.modal-action.modal-close.waves-effect.deep-purple.white-text.btn-flat.delete-agree(href='#!') yes
+
 block scripts
   script(src='/javascripts/prism.js')
   script(src='/plugins/codemirror/lib/codemirror.js')
@@ -48,4 +64,4 @@ block scripts
   script(src='/plugins/codemirror/addon/dialog/dialog.js')
   script(src='/plugins/codemirror/addon/comment/comment.js')
   script(src='/plugins/codemirror/addon/wrap/hardwrap.js')
-  script(src='/javascripts/articles/commentInit.js')
+  script(src='/javascripts/articles/passageInit.js')

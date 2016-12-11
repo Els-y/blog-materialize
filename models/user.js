@@ -3,7 +3,7 @@ var fs = Promise.promisifyAll(require('fs'));
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
 var jade = require('jade');
-var mailServer = require('./mailServer');
+var mailServer = require('../modules/mailServer');
 var config = require('../modules/config');
 
 var Schema = mongoose.Schema;

@@ -66,11 +66,14 @@
     if (!validator.invalidLoginForm(username, password)) {
       $.post('/login', postData, function(response, status) {
         if (response.success) {
-          updateNavbar(response.data.username);
           $('.button-collapse').sideNav('hide');
-
-          if (response.data.role !== 0)
+          updateNavbar(response.data.username);
+          if (response.data.role !== 0) {
             updateFixedActionBtn();
+          }
+          if ($('.article-container').length !== 0) {
+            updateCommentAndHeader();
+          }
 
           Materialize.toast('Welcome again', 3000);
           if (!response.data.ifconfirmed)
@@ -106,6 +109,9 @@
           Materialize.toast('Please confirm your account', 3000);
           updateNavbar(response.data.username);
           updateFixedActionBtn();
+          if ($('.article-container').length !== 0) {
+            updateCommentAndHeader();
+          }
         } else {
           Materialize.toast(response.data.err, 1000);
         }
@@ -158,6 +164,58 @@
       belowOrigin: true // Displays dropdown below the button
       }
     );
+  }
+
+  function updateCommentAndHeader() {
+    $.ajax({
+      url: window.location.pathname,
+      type: 'GET',
+      success: function(html) {
+        var header_reg = /(<p class="author-update">.+<\/p>)<p class="article-tags">/;
+        var comment_reg = /(<div class="comments-wrap">.*<\/div>)<form id="new-comment-wrap"/;
+
+        var new_header = header_reg.exec(html);
+        var new_comments = comment_reg.exec(html);
+        $('.author-update').replaceWith(new_header[1]);
+        $('.comments-wrap').replaceWith(new_comments[1]);
+        $('.comment .comment-reply').click(replyHandler);
+        $('.comment .comment-delete').click(commentRemoveHandler);
+        $('.comment .reply-delete').click(replyRemoveHandler);
+        $('.author-update .article-delete').click(articleRemoveHandler);
+      }
+    });
+    function replyRemoveHandler() {
+      $('.delete-type').val('reply');
+      $('.delete-id').val($(this).parents('.reply').attr('id'));
+      return true;
+    }
+    function commentRemoveHandler() {
+      $('.delete-type').val('comment');
+      $('.delete-id').val($(this).parents('.comment').attr('id'));
+      return true;
+    }
+    function articleRemoveHandler() {
+      $('.delete-type').val('article');
+      $('.delete-id').val($(this).parents('.article-header').attr('id'));
+    }
+    function replyHandler() {
+      var $comment = $(this).parents('.comment');
+      var id = $comment.attr('id');
+      var author = $comment.find('.comment-author').text();
+      var $chip = $('.comment-form .chip');
+      var closeHtml = '<i class="close material-icons">close</i>';
+      var chipHtml = '<div class="chip">Reply to ' + author + closeHtml + '</div>';
+
+      if ($chip.length !== 0) {
+        $chip.html('Reply to ' + author + closeHtml);
+      } else {
+        $('.comment-form').prepend(chipHtml);
+      }
+
+      $('.comment-form input:hidden').val(id);
+
+      return true;
+    }
   }
 
   $(function() {
