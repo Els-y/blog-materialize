@@ -87,3 +87,29 @@ mongoose.Promise = require('bluebird);
 ### Promise
 * query **不是** *Promise*，要用 .exec() 获取 Promise。即 User.findOne 那些。
 * save 是 *Promise*。即 user.save()。
+
+### Populate
+{type: , ref: }
+### middleware
+* pre
+前执行
+* post
+后执行
+
+> https://github.com/Automattic/mongoose/issues/964
+> by design. there are docs involved to call hooks on.
+>
+> correction, there are no docs to call hooks on.
+> 
+> yes that is correct. Model.update,findByIdAndUpdate,findOneAndUpdate,findOneAndRemove,findByIdAndRemove are all commands executed directly in the database.
+
+
+## Js
+### 重载当前页面
+```javascript
+window.location.reload();
+```
+### 跳转同域名页面
+```javascript
+window.location.href = '/articles'
+```

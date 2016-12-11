@@ -106,6 +106,7 @@
     );
     $('.reply-delete').click(replyRemoveHandler);
     $('.comment-delete').click(commentRemoveHandler);
+    $('.article-delete').click(articleRemoveHandler);
     $('.delete-agree').click(agreeHandler);
   });
 
@@ -114,11 +115,18 @@
     $('.delete-id').val($(this).parents('.reply').attr('id'));
     return true;
   }
+
   function commentRemoveHandler() {
     $('.delete-type').val('comment');
     $('.delete-id').val($(this).parents('.comment').attr('id'));
     return true;
   }
+
+  function articleRemoveHandler() {
+    $('.delete-type').val('article');
+    $('.delete-id').val($(this).parents('.article-header').attr('id'));
+  }
+
   function replyHandler() {
     var $comment = $(this).parents('.comment');
     var id = $comment.attr('id');
@@ -134,9 +142,15 @@
     $('.comment-form input:hidden').val(id);
     return true;
   }
+
   function agreeHandler() {
     var type =  $('.delete-type').val();
-    var postUrl = type === 'reply' ? '/comments/removereply' : '/comments/removecomment';
+    var typeMap = {
+      reply: '/comments/removereply',
+      comment: '/comments/removecomment',
+      article: '/articles/delete'
+    };
+    postUrl = typeMap[type];
     var postData = {
       _id: $('.delete-id').val(),
       _csrf: $('input[name="_csrf"]').val()
@@ -146,23 +160,28 @@
       if (!response.success) {
         Materialize.toast(response.err, 3000);
       } else {
-        Materialize.toast('Delete Success', 3000);
-        $.ajax({
-          url: window.location.pathname,
-          type: 'GET',
-          success: function(html) {
-            var reg = /(<div class="comments-wrap">.+<\/div>)<form id="new-comment-wrap"/;
-            var new_comments = reg.exec(html);
-            if (!!new_comments)
+        if (type === 'reply' || type === 'comment') {
+          Materialize.toast('Delete Success', 3000);
+          $.ajax({
+            url: window.location.pathname,
+            type: 'GET',
+            success: function(html) {
+              var reg = /(<div class="comments-wrap">.+<\/div>)<form id="new-comment-wrap"/;
+              var new_comments = reg.exec(html);
+              if (!!new_comments)
               $('.comments-wrap').replaceWith(new_comments[1]);
-            else
+              else
               $('.comments-wrap').empty();
 
-            $('.comment .comment-reply').click(replyHandler);
-            $('.comment .comment-delete').click(commentRemoveHandler);
-            $('.comment .reply-delete').click(replyRemoveHandler);
-          }
-        });
+              $('.comment .comment-reply').click(replyHandler);
+              $('.comment .comment-delete').click(commentRemoveHandler);
+              $('.comment .reply-delete').click(replyRemoveHandler);
+              $('.author-update .article-delete').click(articleRemoveHandler);
+            }
+          });
+        } else {
+          window.location.href = '/articles';
+        }
       }
     });
   }

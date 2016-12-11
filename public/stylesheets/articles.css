@@ -33,7 +33,12 @@ body {
 .edit-preview {
   overflow: auto;
 }
-
+.edit-preview ul > li {
+  list-style-type: disc;
+}
+.edit-preview ol > li {
+  list-style-type: lower-roman;
+}
 /* ------------- */
 
 /* article page */
@@ -53,6 +58,10 @@ body {
 }
 .article-container .info .author-update span {
   padding: 0 50px;
+}
+.article-container .info .author-update .article-edit,
+.article-container .info .author-update .article-delete {
+  padding: 0 10px;
 }
 .article-container .info .article-tags {
   text-align: center;
@@ -81,6 +90,13 @@ body {
 }
 .article-container .markdown-body pre {
   font-size: 17px;
+}
+
+.article-container .markdown-body ul > li {
+  list-style-type: disc;
+}
+.article-container .markdown-body ol > li {
+  list-style-type: lower-roman;
 }
 
 /* comments */

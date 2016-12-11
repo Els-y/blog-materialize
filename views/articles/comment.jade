@@ -12,13 +12,13 @@
         .col.m11.s10
           p.reply-author #{reply.author.username}
             span.reply-time.grey-text created at #{moment(reply.time).format('LLLL')}
-            if user && (user.role !== 0 || reply.author.username == user.username)
-              a.reply-delete.modal-trigger.waves-effect(href='#delete-modal') Delete
+            if user && (user.role === 2 || (user.role === 1 && reply.author.role !== 2 || reply.author.username == user.username))
+              a.reply-delete.modal-trigger(href='#delete-modal') Delete
           p.reply-content #{reply.content}
     .divider
     p
       span.comment-time.grey-text #{moment(comment.time).format('LLLL')}
       a.comment-reply(href='#new-comment-wrap') Reply
-      if user && (user.role !== 0 || comment.author.username == user.username)
-        a.comment-delete.modal-trigger.waves-effect(href='#delete-modal') Delete
+      - if (user && (user.role === 2 || (user.role === 1 && comment.author.role !== 2) || comment.author.username == user.username))
+        a.comment-delete.modal-trigger(href='#delete-modal') Delete
 .divider
