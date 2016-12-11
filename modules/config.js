@@ -14,5 +14,6 @@ module.exports = {
   },
   protocol: 'http',
   pageSize: 8,
-  pageBarSize: 8
+  pageBarSize: 8,
+  newestCommentSize: 5
 };

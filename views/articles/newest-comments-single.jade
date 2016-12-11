@@ -1,5 +1,5 @@
-a.collection-item.avatar.black-text.darken-4(href='#')
-  i.material-icons.circle.red insert_chart
-  span.title.truncate articleTitle
-  p.truncate commentcommentcommentcommentcomment
-  p 2016-11-12 19:00
+a.collection-item.avatar.black-text.darken-4(href='/articles/passage/#{comment.article._id}')
+  img.circle(src='#{comment.author.avatar}')
+  span.title.deep-purple-text.truncate #{comment.article.title}
+  p.truncate #{comment.content}
+  p.grey-text #{moment(comment.time).format('LLLL')}
