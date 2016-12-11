@@ -16,7 +16,7 @@ block content
           span.article-author author: #{article.author.username}
           span.article-update #{moment(article.updateDate).format('LLLL')}
           if user && (user.role === 2 || user.role === 1 && user.username === article.author.username)
-            a.article-edit(href='#') Edit
+            a.article-edit(href='/articles/modify') Edit
             a.article-delete.modal-trigger(href='#delete-modal') Delete
         p.article-tags
           for tag in article.categories
