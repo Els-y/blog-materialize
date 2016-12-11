@@ -1,5 +1,8 @@
 ul.collection.with-header.article-categories.z-depth-1
   li.collection-header Article Categories
-  each tag in categories
-    a.collection-item.deep-purple-text(href='/articles/categories/#{tag.name}') #{tag.name}
-      span.new.badge.deep-purple.lighten-2(data-badge-caption='') #{tag.count}
+  - if (categories.length !== 0)
+    each tag in categories
+      a.collection-item.deep-purple-text(href='/articles/categories/#{tag.name}') #{tag.name}
+        span.new.badge.deep-purple.lighten-2(data-badge-caption='') #{tag.count}
+  - else
+    a.collection-item.grey-text(href='#') none

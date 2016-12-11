@@ -27,6 +27,10 @@ html
                 ul.right.hide-on-small-only
                   li
                     a.dropdown-button(href='', data-activates='dropdown-logined') #{user.username}
+                      if user.role === 1
+                        |  (admin)
+                      else if user.role === 2
+                        |  (root)
               else
                 ul.right.hide-on-small-only
                   li

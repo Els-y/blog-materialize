@@ -1,4 +1,9 @@
 ul.collection.with-header.z-depth-1
   li.collection-header Newest Comments
-  each i in [1, 2, 3]
-    include newest-comments-single
+  - if (newestComments.length !== 0)
+    each comment in newestComments
+      include newest-comments-single
+  - else
+    a.collection-item.grey-text(href='#') none
+
+    

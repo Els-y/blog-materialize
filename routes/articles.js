@@ -29,11 +29,14 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
   var articlePromise = Article.find().sort({'updateDate': 'desc'}).skip(start).limit(config.pageSize).exec();
   var articleCount = Article.count().exec();
   var categoryPromise = Category.find().sort({'name': 'asc'}).exec();
+  var newestCommentsPromise = Comment.find().populate('author article').sort({'time': 'desc'}).limit(config.newestCommentSize).exec();
 
-  Promise.all([articlePromise, categoryPromise, articleCount]).spread(function(articles, categories, articlesSize) {
+  Promise.all([articlePromise, categoryPromise, articleCount, newestCommentsPromise]).spread(function(articles, categories, articlesSize, newestComments) {
     var pageSum = Math.ceil(articlesSize / config.pageSize);
     if (pageSum === 0) pageSum = 1;
     if (pageNum > pageSum) return res.redirect('/articles/page/' + pageSum);
+
+    console.log(newestComments);
 
     res.render('articles/articles', {
       articleList: articles,
@@ -41,7 +44,8 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
       pageNum: pageNum,
       pageSum: pageSum,
       categories: categories,
-      pageBarSize: config.pageBarSize
+      pageBarSize: config.pageBarSize,
+      newestComments: newestComments
     });
   }).catch(function(reason) {
     res.send(util.inspect(reason));
@@ -51,15 +55,17 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
 router.get('/categories/:tag', csrfProtection, function(req, res, next) {
   var categoryPromise = Category.find().sort({'name': 'asc'}).exec();
   var queryCategoryPromise = Category.findOne({'name': req.params.tag}).populate('articles', 'title intro updateDate').exec();
+  var newestCommentsPromise = Comment.find().populate('author article').sort({'time': 'desc'}).limit(config.newestCommentSize).exec();
 
-  Promise.all([queryCategoryPromise, categoryPromise]).spread(function(queryCategory, categories) {
+  Promise.all([queryCategoryPromise, categoryPromise, newestCommentsPromise]).spread(function(queryCategory, categories, newestComments) {
     res.render('articles/articles', {
       articleList: queryCategory.articles,
       csrfToken: req.csrfToken(),
       pageNum: 1,
       pageSum: 1,
       categories: categories,
-      pageBarSize: config.pageBarSize
+      pageBarSize: config.pageBarSize,
+      newestComments: newestComments
     });
   }).catch(function(reason) {
     // res.send(util.inspect(reason));
