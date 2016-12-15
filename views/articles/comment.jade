@@ -2,9 +2,11 @@
   .col.m1.s2.comment-avatar
     img(src='#{comment.author.avatar}')
   .col.m11.s10
-    p.comment-author #{comment.author.username}
+    p.comment-info
+      span.comment-author #{comment.author.username}
+      span.right.comment-index.grey-text # #{commentIndex + 1}
     p.comment-content #{comment.content}
-    for reply in comment.replies
+    for reply, replyIndex in comment.replies
       .divider
       .row.reply(id='#{reply._id}')
         .col.m1.s2.reply-avatar
@@ -12,13 +14,14 @@
         .col.m11.s10
           p.reply-author #{reply.author.username}
             span.reply-time.grey-text created at #{moment(reply.time).format('LLLL')}
-            if user && (user.role === 2 || (user.role === 1 && reply.author.role !== 2 || reply.author.username == user.username))
+            span.reply-index.right.grey-text ## #{replyIndex + 1}
+            if user && (user.role === 2 || (user.username === article.author.username && reply.author.role !== 2 || reply.author.username == user.username))
               a.reply-delete.modal-trigger(href='#delete-modal') Delete
           p.reply-content #{reply.content}
     .divider
     p
       span.comment-time.grey-text #{moment(comment.time).format('LLLL')}
       a.comment-reply(href='#new-comment-wrap') Reply
-      - if (user && (user.role === 2 || (user.role === 1 && comment.author.role !== 2) || comment.author.username == user.username))
+      if user && (user.role === 2 || (user.username === article.author.username && comment.author.role !== 2) || comment.author.username == user.username)
         a.comment-delete.modal-trigger(href='#delete-modal') Delete
 .divider

@@ -121,6 +121,11 @@ body {
 .article-container .comment .reply-content {
   word-break: break-all;
 }
+.article-container .comment .comment-index,
+.article-container .comment .reply-index {
+  font-weight: normal;
+  font-size: 17px;
+}
 .article-container .comment .comment-reply {
   margin-left: 50px;
 }

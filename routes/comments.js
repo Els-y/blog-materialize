@@ -11,7 +11,7 @@ var Reply = require('../models/reply');
 
 router.post('/newcomment', csrfProtection, function(req, res, next) {
   var reg_articleId = /passage\/(.+)/;
-  var articleId = reg_articleId.exec(req.headers.referer)[1];
+  var articleId = reg_articleId.exec(req.headers.referer);
 
   var status = {
     success: false,
@@ -30,7 +30,7 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
   }
 
   if (req.body.reply === 'false') {  // new comment
-    Article.findById(articleId).exec().then(function(article) {
+    Article.findById(articleId[1]).exec().then(function(article) {
       if (article) return Promise.resolve(article);
       else return Promise.reject("Article doesn't exist");
     }).then(function(article) {
@@ -59,7 +59,7 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
       time: new Date().toISOString()
     });
 
-    Promise.all([Article.findById(articleId).exec(), Comment.findById(req.body.commentId).exec(), reply.save()]).spread(function(article, comment, reply) {
+    Promise.all([Article.findById(articleId[1]).exec(), Comment.findById(req.body.commentId).exec(), reply.save()]).spread(function(article, comment, reply) {
       if (!comment) {
         return Promise.reject("Comment doesn't exist");
       } else if (!article) {
@@ -81,19 +81,26 @@ router.post('/newcomment', csrfProtection, function(req, res, next) {
 
 router.post('/removereply', csrfProtection, authority.checkHasLogin);
 router.post('/removereply', csrfProtection, function(req, res, next) {
+  var reg_articleId = /passage\/(.+)/;
+  var articleId = reg_articleId.exec(req.headers.referer);
   var status = {
     success: false,
     err: null
   };
 
-  if (!req.body._id) {
+  if (!req.body._id || !articleId) {
     status.err = "Invalid operation";
     return res.send(status);
   }
 
-  Reply.findById(req.body._id).populate('author', 'username role').then(function(reply) {
+  Article.findById(articleId[1]).populate('author', 'username').exec().then(function(article) {
+    if (article)
+      return Promise.all([article.author.username, Reply.findById(req.body._id).populate('author', 'username role')]);
+    else
+      return Promise.reject("Article doesn't exist");
+  }).spread(function(articleAuthorName, reply) {
     if (reply) {
-      if (req.session.user.role === 2 || (req.session.user.role === 1 && reply.author.role !== 2) || reply.author.username == req.session.user.username)
+      if (req.session.user.role === 2 || (req.session.user.username === articleAuthorName && reply.author.role !== 2) || reply.author.username == req.session.user.username)
         return Promise.resolve(reply);
       else
         return Promise.reject("Permission isn't enough");
@@ -101,7 +108,7 @@ router.post('/removereply', csrfProtection, function(req, res, next) {
       return Promise.reject("Reply doesn't exist");
     }
   }).then(function(reply) {
-    return Promise.all([Comment.update({replies: {$in: [reply._id]}}, {$pull: {replies: reply._id}}).exec(), Reply.remove({_id: reply._id}).exec()]);
+    return Promise.all([Comment.update({replies: {$in: [reply._id]}}, {$pull: {replies: reply._id}}).exec(), reply.remove()]);
   }).spread(function() {
     status.success = true;
   }).catch(function(reason) {
@@ -113,19 +120,26 @@ router.post('/removereply', csrfProtection, function(req, res, next) {
 
 router.post('/removecomment', csrfProtection, authority.checkHasLogin);
 router.post('/removecomment', csrfProtection, function(req, res, next) {
+  var reg_articleId = /passage\/(.+)/;
+  var articleId = reg_articleId.exec(req.headers.referer);
   var status = {
     success: false,
     err: null
   };
 
-  if (!req.body._id) {
+  if (!req.body._id || !articleId) {
     status.err = "Invalid operation";
     return res.send(status);
   }
 
-  Comment.findById(req.body._id).populate('author', 'username role').then(function(comment) {
+  Article.findById(articleId[1]).populate('author', 'username').exec().then(function(article) {
+    if (article)
+      return Promise.all([article.author.username, Comment.findById(req.body._id).populate('author', 'username role')]);
+    else
+      return Promise.reject("Article doesn't exist");
+  }).spread(function(articleAuthorName, comment) {
     if (comment) {
-      if (req.session.user.role === 2 || (req.session.user.role === 1 && comment.author.role !== 2) || comment.author.username == req.session.user.username)
+      if (req.session.user.role === 2 || (req.session.user.username === articleAuthorName && comment.author.role !== 2) || comment.author.username == req.session.user.username)
         return Promise.resolve(comment);
       else
         return Promise.reject("Permission isn't enough");
