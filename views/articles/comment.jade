@@ -3,8 +3,9 @@
     img(src='#{comment.author.avatar}')
   .col.m11.s10
     p.comment-author #{comment.author.username}
+      span.right.comment-index.grey-text # #{commentIndex + 1}
     p.comment-content #{comment.content}
-    for reply in comment.replies
+    for reply, replyIndex in comment.replies
       .divider
       .row.reply(id='#{reply._id}')
         .col.m1.s2.reply-avatar
@@ -12,6 +13,7 @@
         .col.m11.s10
           p.reply-author #{reply.author.username}
             span.reply-time.grey-text created at #{moment(reply.time).format('LLLL')}
+            span.reply-index.right.grey-text ## #{replyIndex + 1}
             if user && (user.role === 2 || (user.role === 1 && reply.author.role !== 2 || reply.author.username == user.username))
               a.reply-delete.modal-trigger(href='#delete-modal') Delete
           p.reply-content #{reply.content}

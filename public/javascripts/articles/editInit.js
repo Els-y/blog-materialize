@@ -87,7 +87,7 @@
     if (postData._id) {
       $.post('/articles/getArticle', postData, function(article, status) {
         // add chips
-        for (var i = 0; i < article.categories.length; ++i) {
+        for (var i = article.categories.length - 1; i >= 0; --i) {
           chipHtml = '<div class="chip">' + article.categories[i].name + '<i class="material-icons close">close</i></div>';
           $('.chips').prepend(chipHtml);
         }

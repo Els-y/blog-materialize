@@ -30,7 +30,7 @@ block content
     .article-comments
       h2.comments-title Comments
       .comments-wrap
-        for comment in article.comments
+        for comment, commentIndex in article.comments
           include comment
       form.comment-form#new-comment-wrap
         input(type='hidden', name='commentId')
