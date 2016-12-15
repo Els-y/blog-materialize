@@ -67,7 +67,7 @@
       $.post('/login', postData, function(response, status) {
         if (response.success) {
           $('.button-collapse').sideNav('hide');
-          updateNavbar(response.data.username);
+          updateNavbar(response.data.username, response.data.role);
           if (response.data.role !== 0) {
             updateFixedActionBtn();
           }
@@ -141,17 +141,18 @@
     });
   }
 
-  function updateNavbar(username) {
+  function updateNavbar(username, role) {
     $(".navbar .right").remove();
     var html = '<ul id="dropdown-logined" class="dropdown-content">' +
                '<li><a href="/users/settings" class="deep-purple-text">Settings</a></li>' +
                '<li class="divider"></li>' +
                '<li><a href="/logout" class="deep-purple-text">Sign out</a></li>' +
                '</ul>' +
-               '<ul class="right hide-on-med-and-down">' +
+               '<ul class="right hide-on-small-only">' +
                '<li><a href="" data-activates="dropdown-logined" class="dropdown-button">#{username}</a></li>' +
                '</ul>';
-
+    if (role === 1) username += ' (admin)';
+    else if (role === 2) username += ' (root)';
     html = html.replace(/#\{username\}/g, username);
 
     $(".navbar .row").append(html);
