@@ -148,7 +148,7 @@
                '<li class="divider"></li>' +
                '<li><a href="/logout" class="deep-purple-text">Sign out</a></li>' +
                '</ul>' +
-               '<ul class="right hide-on-med-and-down">' +
+               '<ul class="right hide-on-small-only">' +
                '<li><a href="" data-activates="dropdown-logined" class="dropdown-button">#{username}</a></li>' +
                '</ul>';
     if (role === 1) username += ' (admin)';

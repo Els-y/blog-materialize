@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 
 // plugins
 var session = require('express-session');
+var marked = require('marked');
 var config = require('./modules/config');
 var User = require('./models/user');
 
@@ -23,6 +24,16 @@ var app = express();
 // jade plugins
 app.locals.moment = require('moment');
 app.locals.marked = require('marked');
+app.locals.marked.setOptions({
+  renderer: new marked.Renderer(),
+  gfm: true,
+  tables: true,
+  breaks: true,
+  pedantic: false,
+  sanitize: true,
+  smartLists: true,
+  smartypants: false
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

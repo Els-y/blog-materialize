@@ -36,8 +36,6 @@ router.get('/page/:pageNum', csrfProtection, function(req, res, next) {
     if (pageSum === 0) pageSum = 1;
     if (pageNum > pageSum) return res.redirect('/articles/page/' + pageSum);
 
-    console.log(newestComments);
-
     res.render('articles/articles', {
       articleList: articles,
       csrfToken: req.csrfToken(),
@@ -102,10 +100,14 @@ router.get('/passage/:articleId', csrfProtection, function(req, res, next) {
     }
   ];
   var articlePromise = Article.findById(req.params.articleId).populate(populateParams).exec().then(function(article) {
-    res.render('articles/passage', {
-      csrfToken: req.csrfToken(),
-      article: article,
-    });
+    if (article) {
+      res.render('articles/passage', {
+        csrfToken: req.csrfToken(),
+        article: article,
+      });
+    } else {
+      return Promise.reject();
+    }
   }).catch(function(reason) {
     res.redirect('/articles');
   });
