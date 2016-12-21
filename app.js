@@ -7,16 +7,33 @@ var bodyParser = require('body-parser');
 
 // plugins
 var session = require('express-session');
-var config = require('./config');
+var marked = require('marked');
+var config = require('./modules/config');
 var User = require('./models/user');
 
 // route
 var index = require('./routes/index');
 var users = require('./routes/users');
-var　confirm = require('./routes/confirm');
 var articles = require('./routes/articles');
+var confirm = require('./routes/confirm');
+var forgot = require('./routes/forgot');
+var comments = require('./routes/comments');
 
 var app = express();
+
+// jade plugins
+app.locals.moment = require('moment');
+app.locals.marked = require('marked');
+app.locals.marked.setOptions({
+  renderer: new marked.Renderer(),
+  gfm: true,
+  tables: true,
+  breaks: true,
+  pedantic: false,
+  sanitize: true,
+  smartLists: true,
+  smartypants: false
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -31,11 +48,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
+  resave: true,
+  saveUninitialized: true,
   secret: config.secret,
 }));
 
 app.use(function(req, res, next) {
-  if (!req.session.user && req.cookies['rememberMe']) {
+  if (!req.session.user && req.cookies.rememberMe) {
     var remember = req.cookies.rememberMe;
     User.findById(remember.uid, function(err, user) {
       if (user && user.compareUsernameToken(remember.token)) {
@@ -50,13 +69,16 @@ app.use(function(req, res, next) {
 
 app.use(function(req, res, next) {
   res.locals.user = req.session.user || null;
+  res.locals.referer = req.headers.referer;
   next();
 });
 
 app.use('/', index);
 app.use('/users', users);
-app.use('/confirm', confirm);
 app.use('/articles', articles);
+app.use('/forgot', forgot);
+app.use('/confirm', confirm);
+app.use('/comments', comments);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,0 +1,89 @@
+doctype html
+html
+  head
+    title Microblog
+    link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
+    link(rel='stylesheet', href='/stylesheets/materialize.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/articles.css')
+    link(rel='stylesheet', href='/plugins/codemirror/lib/codemirror.css')
+    link(rel='stylesheet', href='/plugins/codemirror/addon/dialog/dialog.css')
+    link(rel='stylesheet', href='/stylesheets/github-markdown.css')
+    link(rel='stylesheet', href='/stylesheets/prism.css')
+
+  body
+    .navbar
+      nav.deep-purple
+        .nav-wrapper
+          .container
+            .row
+              a.col.m1.brand-logo(href='/') Microblog
+              ul.right.hide-on-small-only
+                li
+                  a#editor-publish(href='#') Publish
+                li
+                  if referer
+                    a#editor-cancel(href='#{referer}') Cancel
+                  else
+                    a#editor-cancel(href='/') Cancel
+  
+    .edit-container
+      .row.info
+        form.edit-form.col.m12
+          input(type='hidden', name='_csrf', value='#{csrfToken}')
+          if article
+            input(type='hidden', name='_id', value='#{article._id}')
+          .col.m6.s12
+            .input-field
+              if article
+                input#edit-title(type='text', name='title', value='#{article.title}')
+              else
+                input#edit-title(type='text', name='title')
+              label(for='edit-title') Title
+          .col.m6.s12
+            .input-field
+              .chips.chips-placeholder
+      .row.edit-wrapper
+        .card.edit-block.col.m6.s6(autoheight)
+          form
+            textarea#edit-content(name='edit-content')
+        .card.edit-preview.col.m6.s6(autoheight)
+          .markdown-body
+
+    .fixed-action-btn
+      a.btn-floating.btn-large.deep-purple.lighten-2.waves-effect
+        i.large.material-icons add
+      ul
+        li
+          a.btn-floating.red.waves-effect.tooltipped.write-article(data-position='right', data-delay='50', data-tooltip='Write Article', href='#')
+            i.material-icons mode_edit
+        li
+          a.btn-floating.yellow.darken-2.waves-effect.tooltipped.feedback(data-position='right', data-delay='50', data-tooltip='Feedback')
+            i.material-icons message
+        li
+          a.btn-floating.waves-effect.grey.lighten-3.tooltipped.github(data-position='right', data-delay='50', data-tooltip='Github', href='https://github.com/Els-y/blog-materialize')
+        li
+          a.btn-floating.blue.waves-effect.tooltipped.back-to-top(data-position='right', data-delay='50', data-tooltip='Back to Top')
+            i.material-icons publish
+
+    script(src='/javascripts/jquery.min.js')
+    script(src='/javascripts/lodash.min.js')
+    script(src='/javascripts/marked.min.js')
+    script(src='/javascripts/materialize.min.js')
+    script(src='/javascripts/general/initComponents.js')
+    script(src='/javascripts/general/loginAndRegist.js')
+    script(src='/javascripts/articles/editInit.js')
+    //- script(src='//cdn.bootcss.com/marked/0.3.6/marked.min.js')
+    script(src='/plugins/codemirror/lib/codemirror.js')
+    script(src='/plugins/codemirror/addon/edit/continuelist.js')
+    script(src='/plugins/codemirror/addon/edit/matchbrackets.js')
+    script(src='/plugins/codemirror/addon/edit/closebrackets.js')
+    script(src='/plugins/codemirror/mode/markdown/markdown.js')
+    script(src='/plugins/codemirror/keymap/sublime.js')
+    script(src='/plugins/codemirror/addon/search/search.js')
+    script(src='/plugins/codemirror/addon/search/searchcursor.js')
+    script(src='/plugins/codemirror/addon/dialog/dialog.js')
+    script(src='/plugins/codemirror/addon/comment/comment.js')
+    script(src='/plugins/codemirror/addon/wrap/hardwrap.js')
+    script(src='/javascripts/prism.js')
+    

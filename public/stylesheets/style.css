@@ -2,10 +2,23 @@ body {
   overflow-y: scroll !important;
 }
 .page-container {
+  margin-top: 20px;
   min-height: 650px;
 }
-.navbar-fixed .right > li > a{
-  margin: 0 !important;
+
+/* navbar */
+.navbar .right > li > a {
+  margin: 0 9px !important;
+}
+
+/* form */
+form input[type=email],
+form input[type=text] {
+  font-size: 18px;
+}
+
+form input[type=password] {
+  font-size: 20px;
 }
 
 /* loginForm */
@@ -18,10 +31,44 @@ body {
   width: 100%;
 }
 
+/* registForm */
+#slide-regist .attention,
+#slide-regist .username-attention,
+#slide-regist .password-attention {
+  display: none;
+}
+
+#slide-regist .username-attention,
+#slide-regist .password-attention {
+  padding-left: 30px;
+}
+
+#slide-regist .username-attention li,
+#slide-regist .password-attention li {
+  list-style-type: lower-roman;
+}
+
+/* forgotForm */
+#forgot-modal {
+  width: 350px;
+}
+#forgot-modal .btn {
+  width: 100%;
+}
+
+/* resetForm */
+.reset-form .btn {
+  width: 100%;
+}
+
 /* fixed-btn */
 .fixed-action-btn {
   bottom: 45px;
   right: 160px;
+}
+.github {
+  background: url('../images/icon/GitHub-Mark-32px.png') center no-repeat;
+  background-size: 42px;
 }
 @media only screen and (max-width : 992px) {
   .fixed-action-btn {

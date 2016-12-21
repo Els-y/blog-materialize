@@ -1,72 +1,63 @@
 var express = require('express');
 var router = express.Router();
-var User = require('../models/user');
+var csrf = require('csurf');
+var Promise = require('bluebird');
+var userPromise = require('../modules/promise/userPromise');
+var authority = require('../modules/authority');
 
-router.get('/check/:confirmUrl', checkHasLogin);
+var User = require('../models/user');
+var csrfProtection = csrf();
+
+router.get('/check/:confirmUrl', authority.checkHasLogin);
 router.get('/check/:confirmUrl', function(req, res, next) {
   if (req.session.user.confirmed) {
     res.redirect('/');
   } else {
-    User.findOne({username: req.session.user.username}, function(err, user) {
-      if (err) {
-        console.log(err);
+    userPromise.findUserByNamePromise(req.session.user.username).then(function(user) {
+      if (!user.confirmAccount(req.params.confirmUrl)) {
+        res.redirect('/confirm/invalid');
       } else {
-        var status = user.confirmAccount(req.params.confirmUrl);
-        if (status === 1) {
-          res.redirect('/confirm/expire');
-        } else if (status === 2) {
-          res.redirect('/confirm/invalid');
-        } else {
-          req.session.user = user;
+        req.session.user = user;
 
-          // confirm the user's confirmed is true
-          if (!req.session.user.confirmed)
-            req.session.user.confirmed = true;
+        // confirm the user's confirmed is true
+        if (!req.session.user.confirmed)
+          req.session.user.confirmed = true;
 
-          res.redirect('/');
-        }
+        res.redirect('/');
       }
+    }).catch(function(reason) {
+      console.log(reason);
+      res.redirect('/');
     });
   }
 });
 
-router.get('/expire', function(req, res, next) {
-  res.render('confirm/expire');
-});
-
-router.get('/invalid', function(req, res, next) {
-  res.render('confirm/invalid');
+router.get('/invalid', csrfProtection, function(req, res, next) {
+  res.render('confirm/invalid', {csrfToken: req.csrfToken()});
 });
 
 router.get('/resend', function(req, res, next) {
-  var status = {success: false,
-                data: {username: req.body.username,
-                       err: null,
-                      }
-               };
+  var status = {
+    success: false,
+    data: {
+      username: req.body.username,
+      err: null,
+    }
+   };
 
   if (!req.session.user) {
     status.data.err = 'Please login first';
     return res.send(status);
   }
 
-  User.findOne({username: req.session.user.username}, function(err, user) {
-    if (err) {
-      status.data.err = 'Database error';
-    } else {
-      user.sendConfirmMail(req.headers.host);
-      status.success = true;
-    }
+  userPromise.findUserByNamePromise(req.session.user.username).then(function(user) {
+    user.sendRegistConfirmMail(req.headers.host);
+    status.success = true;
+  }).catch(function(reason) {
+    status.data.err = reason;
+  }).finally(function() {
     res.send(status);
   });
 });
-
-function checkHasLogin(req, res, next) {
-  if (!req.session.user) {
-    return res.redirect('/');
-  } else {
-    next();
-  }
-}
 
 module.exports = router;

@@ -1,0 +1,92 @@
+extends ../layout/layout
+
+block css
+  link(rel='stylesheet', href='/stylesheets/settings.css')
+
+block content
+  .container.page-container
+    .row
+    .row
+      .col.s6
+        ul.tabs.user-settings-tabs.tabs-fixed-width
+          li.tab
+            a(href='#tab-information') information
+          li.tab
+            a(href='#tab-password') password
+      
+    #tab-information.col.s12
+      .row
+        .col.m6
+          .row
+            h4 Basic
+            .divider
+          .row
+          .row
+            .input-field.col.m8
+              input#info-username.black-text(disabled, value='#{user.username}', type='text')
+              label.deep-purple-text(for='info-username') Username
+          .row
+            .input-field.col.m8
+              input#info-email.black-text(disabled, value='#{user.email}', type='text')
+              label.deep-purple-text(for='info-email') Email
+
+        .col.m6.avatars
+          .row
+            h4 Avatar
+            .divider
+          .row
+            .col.m4
+              .row
+                .card.z-depth-2
+                  .card-image
+                    img(src='#{user.avatar}')
+                  .card-content
+                    h5.center-align Present
+              .row
+                .col.m8.offset-m2
+                  button.waves-effect.btn.avatar-save save
+            .col.m8.avatar-list
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default01.jpg')
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default02.jpg')
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default03.jpg')
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default01.jpg')
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default02.jpg')
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default03.jpg')
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default01.jpg')
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default02.jpg')
+              .col.m4
+                img.z-depth-2(src='/images/avatar/default03.jpg')
+                
+    #tab-password.col.s12
+      .container
+        .row
+        .row.valign-wrapper
+          .card.white.col.m6.offset-m3.s12.z-depth-2
+            .card-content.black-text
+              form.change-form
+                input(type='hidden', name='_csrf', value='#{csrfToken}')
+                .row
+                  .input-field.col.m10.offset-m1.s12
+                    input#change-oldpassword(type='password', name='password')
+                    label(for='change-oldpassword') Old Password
+                .row
+                  .input-field.col.m10.offset-m1.s12
+                    input#change-newpassword(type='password', name='password')
+                    label(for='change-newpassword') New Password
+                .row
+                  .input-field.col.m10.offset-m1.s12
+                    input#change-confirmnew(type='password', name='confirm')
+                    label(for='change-confirmnew') Confirm Password
+                .row
+                  .col.m8.offset-m2.s10.offset-s1
+                    button.btn.waves-effect.deep-purple(type='submit') submit
+block scripts
+  script(src='/javascripts/users/settingsInit.js')

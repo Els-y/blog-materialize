@@ -1,34 +1,38 @@
 doctype html
 html
   head
-    title= title
+    title Microblog
     link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
     link(rel='stylesheet', href='/stylesheets/materialize.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
     block css
 
   body
-    .navbar-fixed.navbar
+    .navbar
       nav.deep-purple
         .nav-wrapper
           .container
             .row
-              a.col.m1.brand-logo(href='/') Microblog
-              ul.col.offset-m2.hide-on-med-and-down
+              a.col.brand-logo.center(href='/') Microblog
+              ul.col.left.hide-on-small-only
                 li
                   a(href='/articles') Articles
               if user
                 ul#dropdown-logined.dropdown-content
                   li
-                    a.deep-purple-text(href='/users/setting') Settings
+                    a.deep-purple-text(href='/users/settings') Settings
                   li.divider
                   li
                     a.deep-purple-text(href='/logout') Sign out
-                ul.right.hide-on-med-and-down
+                ul.right.hide-on-small-only
                   li
                     a.dropdown-button(href='', data-activates='dropdown-logined') #{user.username}
+                      if user.role === 1
+                        |  (admin)
+                      else if user.role === 2
+                        |  (root)
               else
-                ul.right.hide-on-med-and-down
+                ul.right.hide-on-small-only
                   li
                     a.button-collapse.show-on-large(href='#loginForm', data-activates='slide-login') Login
                   li
@@ -40,23 +44,43 @@ html
             h4.center-align Login
           .row
             form.login-form
+              input(type='hidden', name='_csrf', value='#{csrfToken}')
               .row
-                .input-field.col.s12
+                .input-field.col.m12.s10.offset-s1
                   input#login-username(type='text', name='username')
                   label(for='login-username') Username
               .row
-                .input-field.col.s12
+                .input-field.col.m12.s10.offset-s1
                   input#login-password(type='password', name='password')
                   label(for='login-password') Password
               .row
-                p.col
+                p.col.m12.s10.offset-s1
                   input#login-remember_me(type='checkbox', name='remember_me')
                   label(for='login-remember_me') Remember me
-                p.col
-                  a.blue-text(href='') Forget password?
+                p.col.m12.s10.offset-s1
+                  a.blue-text.modal-trigger(href='#forgot-modal') Forgot password?
               .row
                 .col.s10.offset-s1
                   button.btn.waves-effect.deep-purple(type='submit') submit
+    
+    // Forgot Modal Structure
+    #forgot-modal.modal
+      .modal-content
+        .row
+          h4.center-align Forgot Password
+          .divider
+        form.forgot-form
+          .row
+            .input-field.col.s12
+              input#forgot-username(type='text', name='username')
+              label(for='forgot-username') Username
+          .row
+            .input-field.col.s12
+              input#forgot-email(type='email', name='email')
+              label(for='forgot-email') Email
+          .row
+            .col.s10.offset-s1
+              button.btn.waves-effect.deep-purple(type='submit') submit
 
     ul#slide-regist.side-nav
       .container
@@ -65,70 +89,78 @@ html
         .row
           form.regist-form
             .row
-              .input-field.col.s12
+              .input-field.col.m12.s10.offset-s1
                 input#regist-username(type='text', name='username')
                 label(for='regist-username') Username
             .row
-              .input-field.col.s12
+              .input-field.col.m12.s10.offset-s1
                 input#regist-email(type='email', name='email')
                 label(for='regist-email') Email
             .row
-              .input-field.col.s12
+              .input-field.col.m12.s10.offset-s1
                 input#regist-password(type='password', name='password')
                 label(for='regist-password') Password
             .row
-              .input-field.col.s12
+              .input-field.col.m12.s10.offset-s1
                 input#regist-confirm(type='password', name='confirm')
                 label(for='regist-confirm') Confirm Password
             .row
               .col.s10.offset-s1
                 button.btn.waves-effect.deep-purple(type='submit') submit
-
+        .row
+          p.deep-purple-text.attention Attention
+          ol.username-attention
+            li.purple-text Can only contain 0-9a-zA-Z_-
+            li.purple-text Start with letter
+            li.purple-text Length must be between 3 and 10
+          ol.password-attention
+            li.purple-text Can only contain 0-9a-zA-Z+-*/=!?@_
+            li.purple-text Length must be between 6 and 18
 
     block content
 
     .fixed-action-btn
-      a.btn-floating.btn-large.deep-purple.lighten-4.waves-effect
-        i.large.mdi-editor-mode-edit
+      a.btn-floating.btn-large.deep-purple.lighten-2.waves-effect
+        i.large.material-icons add
       ul
+        if user && user.role != 0
+          li
+            a.btn-floating.red.waves-effect.tooltipped.write-article(data-position='right', data-delay='50', data-tooltip='Write Article', href='/articles/edit')
+              i.material-icons mode_edit
+        li.feedback-li
+          a.btn-floating.yellow.darken-2.waves-effect.tooltipped.feedback(data-position='right', data-delay='50', data-tooltip='Feedback')
+            i.material-icons message
         li
-          a.btn-floating.red.waves-effect.tooltipped.write-article(data-position='right', data-delay='50', data-tooltip='Write Article')
-            i.large.mdi-editor-insert-chart
-        li
-          a.btn-floating.yellow.darken-1.waves-effect.tooltipped.feedback(data-position='right', data-delay='50', data-tooltip='Feedback')
-            i.large.mdi-editor-format-quote
-        li
-          a.btn-floating.green.waves-effect.tooltipped(data-position='right', data-delay='50', data-tooltip='Github', href='https://github.com/Els-y')
-            i.large.mdi-editor-publish
+          a.btn-floating.waves-effect.grey.lighten-3.tooltipped.github(data-position='right', data-delay='50', data-tooltip='Github', href='https://github.com/Els-y/blog-materialize')
         li
           a.btn-floating.blue.waves-effect.tooltipped.back-to-top(data-position='right', data-delay='50', data-tooltip='Back to Top')
-            i.large.mdi-editor-attach-file
+            i.material-icons publish
 
 
     footer.page-footer.deep-purple
       .container
         .row
           .col.l6.s12
-            h5.white-text Footer Content
-            p.grey-text.text-lighten-4 You can use rows and columns here to organize your footer content.
+            h5.white-text For You
+            p.grey-text.text-lighten-4
+              | Sometimes, we need a little tears to clear the mist in our eyes, a little 
+              | assurance to clear the doubts in our head, a little hug to nurse our aching heart.
           .col.l4.offset-l2.s12
             h5.white-text Links
             ul
               li
-                a.grey-text.text-lighten-3(href='#!') Link 1
+                a.grey-text.text-lighten-3(href='http://expressjs.com/') Express
               li
-                a.grey-text.text-lighten-3(href='#!') Link 2
+                a.grey-text.text-lighten-3(href='https://www.mongodb.com/') MongoDB
               li
-                a.grey-text.text-lighten-3(href='#!') Link 3
-              li
-                a.grey-text.text-lighten-3(href='#!') Link 4
+                a.grey-text.text-lighten-3(href='http://materializecss.com/') Materialize
       .footer-copyright
         .container
           | © 2016 Copyright Text
-          a.grey-text.text-lighten-4.right(href='#!') More Links
+          a.grey-text.text-lighten-4.right(href='http://blog.csdn.net/elliott_yoho') My Blog
 
-    script(src='/javascripts/general/jquery.js')
-    script(src='/javascripts/general/materialize.min.js')
+    script(src='/javascripts/jquery.min.js')
+    script(src='/javascripts/materialize.min.js')
     script(src='/javascripts/general/initComponents.js')
     script(src='/javascripts/general/loginAndRegist.js')
     block scripts

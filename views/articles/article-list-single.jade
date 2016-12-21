@@ -1,9 +1,7 @@
 .card.white.collection-item
   .card-content.white-text
-    a.card-title.black-text(href='#') Card Title
-    a.black-text.truncate(href='#')
-      | I am a very simple card. I am good at containing small bits of information.
+    a.card-title.black-text.truncate(href='/articles/passage/#{article._id}') #{article.title}
+    a.grey-text.truncate(href='/articles/passage/#{article._id}') #{article.intro}
   .card-action.right-align
-    span.left #{publish-time}
-    a(href='#') readmore
-    a(href='#') Comment
+    span.left #{moment(article.updateDate).format('LLLL')}
+    a(href='/articles/passage/#{article._id}') readmore

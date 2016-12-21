@@ -1,8 +1,9 @@
 module.exports = {
   secret: process.env.BLOG_SECRET,
   cookie: {
-    maxAge: 600000
+    maxAge: 1000 * 60 * 60 * 24
   },
+  mailTemplateFolder: 'modules/mail/',
   mailServer: {
     host: process.env.MAIL_HOST,
     secureConnection: true,
@@ -12,5 +13,8 @@ module.exports = {
         pass: process.env.MAIL_PASSWORD,
     }
   },
-  protocol: 'http'
+  protocol: 'http',
+  pageSize: 8,
+  pageBarSize: 8,
+  newestCommentSize: 5
 };

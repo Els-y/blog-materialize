@@ -1,62 +1,72 @@
 var express = require('express');
 var router = express.Router();
-var validator = require('../validator');
-var util = require('util');
-var config = require('../config');
+var csrf = require('csurf');
+var validator = require('../modules/validator');
+var config = require('../modules/config');
+var Promise = require('bluebird');
+var userPromise = require('../modules/promise/userPromise');
+var authority = require('../modules/authority');
+
+var csrfProtection = csrf();
 
 // db Model
 var User = require('../models/user');
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index');
+router.get('/', csrfProtection, function(req, res, next) {
+  res.render('index', {csrfToken: req.csrfToken()});
 });
 
-router.post('/login', checkNotLogin);
-router.post('/login', function(req, res, next) {
-  var status = {success: false,
-                data: {username: req.body.username,
-                       err: null,
-                      }
-               };
+router.post('/login', authority.checkNotLogin);
+router.post('/login', csrfProtection, function(req, res, next) {
+  var status = {
+    success: false,
+    data: {
+      username: req.body.username,
+      ifconfirmed: true,
+      role: 0,
+      err: null,
+    }
+   };
 
   if (!validator.checkUsername(req.body.username)) {
     status.data.err = 'Invalid username';
     return res.send(status);
   }
 
-  User.findOne({username: req.body.username}, function(err, user) {
-    if (err) {
-      status.data.err = 'Datebase error';
-    } else if (user) {
-      if (user.comparePassword(req.body.password)) {
-        if (req.body.remember_me === 'true')
-          res.cookie('rememberMe', {uid: user._id, token: user.getUsernameToken(), keep_login: true}, config.cookie);
-        req.session.user = user;
-        status.success = true;
-      } else {
-        status.data.err = 'Password wrong';
-      }
+  userPromise.findUserByNamePromise(req.body.username).then(function(user) {
+    if (user.comparePassword(req.body.password)) {
+      if (req.body.remember_me === 'true')
+        res.cookie('rememberMe', {uid: user._id, token: user.getUsernameToken(), keep_login: true}, config.cookie);
+      req.session.user = user;
+      status.success = true;
+      status.data.role = user.role;
+      if (!user.confirmed) status.data.ifconfirmed = false;
     } else {
-      status.data.err = 'User does not exist';
+      status.data.err = 'Password wrong';
     }
+  }).catch(function(reason) {
+    status.data.err = reason;
+  }).finally(function() {
     res.send(status);
   });
 });
 
-router.post('/regist', checkNotLogin);
-router.post('/regist', function(req, res, next) {
-  var status = {success: false,
-                data: {username: req.body.username,
-                       err: null,
-                      }
-               };
+router.post('/regist', authority.checkNotLogin);
+router.post('/regist', csrfProtection, function(req, res, next) {
+  var status = {
+    success: false,
+    data: {
+      username: req.body.username,
+      err: null,
+    }
+  };
 
   var userInfo = {
     username: req.body.username,
     email: req.body.email,
     password: req.body.password,
-    avatar: 'images/avatar/default01.jpg',
+    avatar: '/images/avatar/default01.jpg',
     registDate: Date(),
     confirmDate: Date(),
     confirmed: false,
@@ -75,60 +85,24 @@ router.post('/regist', function(req, res, next) {
     return res.send(status);
   }
 
-  User.findOne({username: req.body.username}, function(err, userByName) {
-    if (err) {
-      status.data.err = 'Database error';
-      return res.send(status);
-    } else if (userByName) {
-      status.data.err = 'Username already exists';
-      return res.send(status);
-    }
-
-    User.findOne({email: req.body.email}, function(err, userByEmail) {
-      if (err) {
-        status.data.err = 'Database error';
-      } else if (userByEmail) {
-        status.data.err = 'Email already exists';
-      } else {
-        status.success = true;
-        var user = new User(userInfo);
-        req.session.user = user;
-        user.save();
-        user.sendConfirmMail(req.headers.host);
-      }
-      res.send(status);
-    });
+  userPromise.findUserNotExistByNameAndEmail(req.body.username, req.body.email).then(function() {
+    var user = new User(userInfo);
+    status.success = true;
+    req.session.user = user;
+    user.save();
+    user.sendRegistConfirmMail(req.headers.host);
+  }).catch(function(reason) {
+    status.data.err = reason;
+  }).finally(function() {
+    res.send(status);
   });
 });
 
-router.get('/logout', checkHasLogin);
+router.get('/logout', authority.checkHasLogin);
 router.get('/logout', function(req, res, next) {
   req.session.user = null;
   res.clearCookie('rememberMe');
   res.redirect(req.headers.referer);
 });
-
-router.get('/test', function(req, res, next) {
-  User.findById('58354aa7ebfe3034585d3911', function(err, user) {
-    console.log('findbyid');
-    console.log(user);
-  });
-});
-
-function checkHasLogin(req, res, next) {
-  if (!req.session.user) {
-    return res.redirect('/');
-  } else {
-    next();
-  }
-}
-
-function checkNotLogin(req, res, next) {
-  if (req.session.user) {
-    return res.redirect('/');
-  } else {
-    next();
-  }
-}
 
 module.exports = router;
