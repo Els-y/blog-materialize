@@ -124,21 +124,7 @@
   function updateFixedActionBtn() {
     $('.feedback-li').before('<li><a data-position="right" data-delay="50" data-tooltip="Write Article" href="/articles/edit" class="btn-floating red waves-effect tooltipped write-article"><i class="material-icons">mode_edit</i></a></li>');
 
-    initFixedActionBtn();
     $('.tooltipped').tooltip({delay: 50});
-  }
-
-  function initFixedActionBtn() {
-    $('.back-to-top').click(function() {
-      $('html,body').animate({
-        scrollTop: 0
-      }, 500);
-      return false;
-    });
-
-    $('.feedback').click(function() {
-      Materialize.toast('Still in development', 1500);
-    });
   }
 
   function updateNavbar(username, role) {
