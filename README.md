@@ -3,28 +3,67 @@
 
 由于本人也只是基本学了下这些框架，第一次写个小型博客来练练手，功能还未完全实现，可能还有些小细节没有注意到，如果有发现哪里有 *bug* 或者好的建议，请不吝指出，谢谢。
 
-## 功能需求
+> 在线预览: http://118.89.16.142/
+
+## 使用方法
+首先，根据自己需要改写 **modules/config.js** 的 `secret` 和 `mailServer`。
+
+`secret` 在加密部分使用。
+`mailServer` 用以发送确认邮件来实现确认账户和找回密码。
+
+```javascript
+secret: process.env.BLOG_SECRET,
+...
+mailServer: {
+  host: process.env.MAIL_HOST,
+  secureConnection: true,
+  port: parseInt(process.env.MAIL_PORT),
+  auth: {
+    user: process.env.MAIL_USERNAME,
+    pass: process.env.MAIL_PASSWORD,
+  }
+},
+```
+例如，使用 163 邮箱的 SMTP。
+```javascript
+secret: 'microblogsecret',
+...
+mailServer: {
+  host: 'smtp.163.com',
+  secureConnection: true,
+  port: 465,
+  auth: {
+    user: 'yourUsername@163.com',
+    pass: 'yourPassword',
+  }
+},
+```
+当然，最好还是在系统环境变量里设置这些值。
+
+然后，根据需要更改文件 **bin/www** 中的数据库连接，默认为
+```javascript
+mongoose.connect('mongodb://localhost/microblog');
+```
+
+上述操作完成后就可以使用了。
+
+## 介绍
+基本的功能还有数据模型
+
+### 功能
 * 文章
 	* 发表、删除、修改
 	* 分类加标签
-	* 统计浏览次数 (暂不需要)
 * 评论
 	* **只有登录了的用户可以使用评论功能**
-	* 评论、回复、删除(回复评论只能回复一级)
-	* 统计评论个数 (暂不需要)
-* 消息 (未实现)
-	* **只有登录了的用户会有消息**
-    * 评论/回复评论时通知对方
-	* 使用必须登录的功能时提醒登录
-	* 管理员文章被修改时
-	* 反馈信息给**所有者**
+	* 评论、回复、删除 (回复评论只能回复一级)
 * 用户
     * 登入、登出
     * 注册
     * 找回密码、更改密码
     * 修改个人信息
 
-## 用户权限
+### 用户权限
 * 用户
     * 添加、删除评论
     * 修改个人信息
@@ -36,7 +75,7 @@
     * 所有文章修改、删除
     * 所有评论删除
 
-## 数据库模型
+### 数据库模型
 * User
 	* id (ObjectId)
     * username (String，长度3-10，[0-9a-zA-Z-_])
@@ -82,7 +121,7 @@
 	* name (String)
 	* src (String)
 
-## 视图
+### 视图
 * 主页
 * 文章列表页
 * 文章单页

@@ -54,27 +54,18 @@ function findUserByIdPromise(id) {
 }
 
 function findUserNotExistByNameAndEmail(username, email) {
+  var queryArray = [{username: username}, {email: email}];
   var promise = new Promise(function(resolve, reject) {
-    User.findOne({username: username}, function(err, user) {
+    User.findOne({$or: queryArray}, function(err, user) {
       if (err) {
         reject('Database error');
-      } else if (user) {
-        reject("Username already exists");
-      } else {
+      } else if (!user) {
         resolve();
+      } else if (user.username === username) {
+        reject('Username already exists');
+      } else {
+        reject('Email already exists');
       }
-    });
-  }).then(function() {
-    return new Promise(function(resolve, reject) {
-      User.findOne({email: email}, function(err, user) {
-        if (err) {
-          reject('Database error');
-        } else if (user) {
-          reject('Email already exists');
-        } else {
-          resolve();
-        }
-      });
     });
   });
 

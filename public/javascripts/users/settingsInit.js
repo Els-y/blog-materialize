@@ -29,7 +29,6 @@
       }
     });
   }
-
 })();
 
 // change-form
@@ -73,7 +72,7 @@
     if (!validator.invalidChangeForm(oldpassword, newpassword, confirmnew)) {
       $.post('/users/changepassword', postData, function(data, status) {
         if (data.success) {
-          Materialize.toast('Your password has been revised successfully', 4000);
+          Materialize.toast('Revise successfully', 4000);
           $('.change-form #change-oldpassword').val('');
           $('.change-form #change-newpassword').val('');
           $('.change-form #change-confirmnew').val('');

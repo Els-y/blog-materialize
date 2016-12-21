@@ -37,7 +37,7 @@
     if (!validator.invalidResetForm(password, confirm)) {
       $.post('/users/resetpassword', postData, function(data, status) {
         if (data.success) {
-          Materialize.toast('Your password has been revised successfully', 4000);
+          Materialize.toast('Revise successfully', 4000);
           window.location.reload();
         } else {
           Materialize.toast(data.err, 1000);
