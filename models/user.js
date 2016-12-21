@@ -42,9 +42,9 @@ userScheMa.statics.getCompleteUrl = function(host, route, token) {
 userScheMa.statics.sendConfirmMail = function(email, confirmUrl) {
   var text, html;
 
-  fs.readFileAsync('./public/mail/confirmMail.txt').then(function(txtData) {
+  fs.readFileAsync(config.mailTemplateFolder + 'confirmMail.txt').then(function(txtData) {
     text = txtData;
-    return fs.readFileAsync('./public/mail/confirmMail.jade');
+    return fs.readFileAsync(config.mailTemplateFolder + 'confirmMail.jade');
   }).then(function(jadeData) {
     var cp = jade.compile(jadeData.toString());
     html = cp({confirmUrl: confirmUrl});

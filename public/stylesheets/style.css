@@ -31,6 +31,23 @@ form input[type=password] {
   width: 100%;
 }
 
+/* registForm */
+#slide-regist .attention,
+#slide-regist .username-attention,
+#slide-regist .password-attention {
+  display: none;
+}
+
+#slide-regist .username-attention,
+#slide-regist .password-attention {
+  padding-left: 30px;
+}
+
+#slide-regist .username-attention li,
+#slide-regist .password-attention li {
+  list-style-type: lower-roman;
+}
+
 /* forgotForm */
 #forgot-modal {
   width: 350px;

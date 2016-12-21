@@ -107,7 +107,15 @@ html
             .row
               .col.s10.offset-s1
                 button.btn.waves-effect.deep-purple(type='submit') submit
-
+        .row
+          p.deep-purple-text.attention Attention
+          ol.username-attention
+            li.purple-text Can only contain 0-9a-zA-Z_-
+            li.purple-text Start with letter
+            li.purple-text Length must be between 3 and 10
+          ol.password-attention
+            li.purple-text Can only contain 0-9a-zA-Z+-*/=!?@_
+            li.purple-text Length must be between 6 and 18
 
     block content
 

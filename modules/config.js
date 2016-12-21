@@ -3,6 +3,7 @@ module.exports = {
   cookie: {
     maxAge: 1000 * 60 * 60 * 24
   },
+  mailTemplateFolder: 'modules/mail/',
   mailServer: {
     host: process.env.MAIL_HOST,
     secureConnection: true,

@@ -208,6 +208,16 @@
   $(function() {
     $('#slide-login .btn').click(loginFormSubmitHandler);
     $('#slide-regist .btn').click(registFormSubmitHandler);
+
+    $('#slide-regist #regist-username').bind('focus blur', function() {
+      $('#slide-regist .attention').toggle();
+      $('#slide-regist .username-attention').toggle();
+    });
+
+    $('#slide-regist #regist-password').bind('focus blur', function() {
+      $('#slide-regist .attention').toggle();
+      $('#slide-regist .password-attention').toggle();
+    });
   });
 })();
 
