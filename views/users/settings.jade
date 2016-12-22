@@ -27,7 +27,10 @@ block content
               label.deep-purple-text(for='info-username') Username
           .row
             .input-field.col.m8
-              input#info-email.black-text(disabled, value='#{user.email}', type='text')
+              - encryptedEmail = user.email.replace(/.(.+).@/, function() {
+              -   return arguments[0].replace(arguments[1], _.fill(Array(arguments[1].length), '*').join(''));
+              - });
+              input#info-email.black-text(disabled, value='#{encryptedEmail}', type='text')
               label.deep-purple-text(for='info-email') Email
 
         .col.m6.avatars
