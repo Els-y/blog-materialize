@@ -1,10 +1,14 @@
-
+#tab-information .confirm-attention,
 #tab-information .input-field label {
   font-size: 22px;
 }
 
 #tab-information .input-field input {
   font-size: 20px;
+}
+
+#tab-information .confirm-attention {
+  margin-top: -20px;
 }
 
 #tab-information .avatar-list img {
