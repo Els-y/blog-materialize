@@ -27,8 +27,16 @@ block content
               label.deep-purple-text(for='info-username') Username
           .row
             .input-field.col.m8
-              input#info-email.black-text(disabled, value='#{user.email}', type='text')
+              - encryptedEmail = user.email.replace(/.(.+).@/, function() {
+              -   return arguments[0].replace(arguments[1], _.fill(Array(arguments[1].length), '*').join(''));
+              - });
+              input#info-email.black-text(disabled, value='#{encryptedEmail}', type='text')
               label.deep-purple-text(for='info-email') Email
+          if !user.confirmed
+            .row
+              .col.m8
+                p.confirm-attention.deep-purple-text Please confirm your email address
+                a.btn.waves-effect.deep-purple.lighten-2.resend-confirm(href='/confirm/resend') resend
 
         .col.m6.avatars
           .row
@@ -44,7 +52,7 @@ block content
                     h5.center-align Present
               .row
                 .col.m8.offset-m2
-                  button.waves-effect.btn.avatar-save save
+                  button.waves-effect.btn.avatar-save.deep-purple.lighten-2 save
             .col.m8.avatar-list
               .col.m4
                 img.z-depth-2(src='/images/avatar/default01.jpg')

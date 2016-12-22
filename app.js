@@ -34,6 +34,7 @@ app.locals.marked.setOptions({
   smartLists: true,
   smartypants: false
 });
+app.locals._ = require('lodash');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
