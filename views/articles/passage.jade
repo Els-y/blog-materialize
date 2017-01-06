@@ -6,6 +6,7 @@ block css
   link(rel='stylesheet', href='/stylesheets/prism.css')
   link(rel='stylesheet', href='/plugins/codemirror/lib/codemirror.css')
   link(rel='stylesheet', href='/plugins/codemirror/addon/dialog/dialog.css')
+  link(rel='stylesheet', href='/plugins/mermaid/mermaid.css')
 
 block content
   .container.article-container
@@ -64,4 +65,6 @@ block scripts
   script(src='/plugins/codemirror/addon/dialog/dialog.js')
   script(src='/plugins/codemirror/addon/comment/comment.js')
   script(src='/plugins/codemirror/addon/wrap/hardwrap.js')
+  script(src='/plugins/mermaid/mermaid.min.js')
+  script(src='//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML')
   script(src='/javascripts/articles/passageInit.js')

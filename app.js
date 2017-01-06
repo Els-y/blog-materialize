@@ -22,10 +22,19 @@ var comments = require('./routes/comments');
 var app = express();
 
 // jade plugins
+var renderer = new marked.Renderer();
+renderer.code = function (code, language) {
+    if(code.match(/^sequenceDiagram/)||code.match(/^graph/)){
+        return '<div class="mermaid">'+code+'</div>';
+    }
+    else{
+        return '<pre><code>'+code+'</code></pre>';
+    }
+};
 app.locals.moment = require('moment');
 app.locals.marked = require('marked');
 app.locals.marked.setOptions({
-  renderer: new marked.Renderer(),
+  renderer: renderer,
   gfm: true,
   tables: true,
   breaks: true,
