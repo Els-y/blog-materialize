@@ -1,4 +1,13 @@
 (function() {
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']]
+    }
+  });
+  mermaid.initialize({startOnLoad:true});
+})();
+
+(function() {
   $(function() {
     var editor = CodeMirror.fromTextArea($('.new-comment').get(0), {
       autoCloseBrackets: true,
